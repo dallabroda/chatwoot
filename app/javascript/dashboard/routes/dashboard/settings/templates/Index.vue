@@ -14,7 +14,7 @@ import DropdownMenu from 'dashboard/components-next/dropdown-menu/DropdownMenu.v
 import Icon from 'dashboard/components-next/icon/Icon.vue';
 import BaseSettingsHeader from '../components/BaseSettingsHeader.vue';
 import SettingsLayout from '../SettingsLayout.vue';
-import CreateTemplateDialog from './CreateTemplateDialog.vue';
+import TemplateFormDialog from './TemplateFormDialog.vue';
 import TemplateCard from './TemplateCard.vue';
 import TemplatePreviewDrawer from './TemplatePreviewDrawer.vue';
 import {
@@ -90,7 +90,7 @@ const whatsappInboxes = computed(() =>
 const cloudApiInboxes = computed(() =>
   whatsappInboxes.value.filter(inbox => inbox.provider === 'whatsapp_cloud')
 );
-const createDialogRef = ref(null);
+const templateFormRef = ref(null);
 
 const inboxOptions = computed(() => [
   {
@@ -331,6 +331,16 @@ const syncTemplates = async () => {
   isSyncing.value = false;
 };
 
+const editTemplate = template => {
+  previewPanelRef.value?.close();
+  templateFormRef.value.open(template);
+};
+
+const onTemplateDeleted = () => {
+  previewPanelRef.value?.close();
+  fetchTemplates();
+};
+
 onActivated(fetchTemplates);
 onDeactivated(abortTemplateRequest);
 </script>
@@ -403,7 +413,7 @@ onDeactivated(abortTemplateRequest);
             :label="$t('WHATSAPP_TEMPLATE_MGMT.CREATE.OPEN')"
             icon="i-lucide-plus"
             size="sm"
-            @click="createDialogRef.open()"
+            @click="templateFormRef.open()"
           />
           <Button
             :label="$t('WHATSAPP_TEMPLATE_MGMT.SYNC_TEMPLATES')"
@@ -438,11 +448,16 @@ onDeactivated(abortTemplateRequest);
       </div>
     </template>
 
-    <TemplatePreviewDrawer ref="previewPanelRef" :template="selectedTemplate" />
-    <CreateTemplateDialog
-      ref="createDialogRef"
+    <TemplatePreviewDrawer
+      ref="previewPanelRef"
+      :template="selectedTemplate"
+      @edit="editTemplate"
+      @deleted="onTemplateDeleted"
+    />
+    <TemplateFormDialog
+      ref="templateFormRef"
       :inboxes="cloudApiInboxes"
-      @created="fetchTemplates"
+      @saved="fetchTemplates"
     />
   </SettingsLayout>
 </template>

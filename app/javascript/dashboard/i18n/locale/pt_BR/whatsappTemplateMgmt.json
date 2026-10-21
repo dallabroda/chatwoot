@@ -3,6 +3,20 @@
     "CREATE": {
       "OPEN": "Criar template",
       "TITLE": "Criar template de WhatsApp",
+      "EDIT_TITLE": "Editar template de WhatsApp",
+      "UPDATE_SUCCESS": "Alterações do template enviadas para análise da Meta.",
+      "EDIT": "Editar",
+      "DELETE": "Excluir",
+      "CONFIRM_DELETE": "Sim, excluir",
+      "DELETE_SUCCESS": "Template excluído.",
+      "HEADER_FILE_HINT": "Arquivo de exemplo que a Meta usa para analisar o template. Obrigatório a cada envio.",
+      "HEADER_FORMATS": {
+        "NONE": "Sem cabeçalho",
+        "TEXT": "Texto",
+        "IMAGE": "Imagem",
+        "VIDEO": "Vídeo",
+        "DOCUMENT": "Documento"
+      },
       "DESCRIPTION": "O template é enviado para análise da Meta. A aprovação pode levar de alguns minutos a 24 horas.",
       "SUBMIT": "Enviar para análise",
       "INBOX": "Número",

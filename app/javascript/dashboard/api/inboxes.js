@@ -63,9 +63,26 @@ class Inboxes extends CacheEnabledApiClient {
     );
   }
 
-  deleteWhatsappTemplate(inboxId, name) {
+  updateWhatsappTemplate(inboxId, templateId, payload) {
+    return axios.patch(
+      `${this.url}/${inboxId}/whatsapp_templates/${templateId}`,
+      payload
+    );
+  }
+
+  deleteWhatsappTemplate(inboxId, templateId, name) {
     return axios.delete(
-      `${this.url}/${inboxId}/whatsapp_templates/${encodeURIComponent(name)}`
+      `${this.url}/${inboxId}/whatsapp_templates/${templateId}`,
+      { params: { name } }
+    );
+  }
+
+  uploadWhatsappTemplateHeaderMedia(inboxId, file) {
+    const formData = new FormData();
+    formData.append('file', file);
+    return axios.post(
+      `${this.url}/${inboxId}/whatsapp_templates/header_media`,
+      formData
     );
   }
 

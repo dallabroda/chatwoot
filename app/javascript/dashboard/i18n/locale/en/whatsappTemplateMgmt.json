@@ -3,6 +3,20 @@
     "CREATE": {
       "OPEN": "Create template",
       "TITLE": "Create WhatsApp template",
+      "EDIT_TITLE": "Edit WhatsApp template",
+      "UPDATE_SUCCESS": "Template changes submitted to Meta for review.",
+      "EDIT": "Edit",
+      "DELETE": "Delete",
+      "CONFIRM_DELETE": "Yes, delete",
+      "DELETE_SUCCESS": "Template deleted.",
+      "HEADER_FILE_HINT": "Sample file Meta uses to review the template. Required on every submit.",
+      "HEADER_FORMATS": {
+        "NONE": "No header",
+        "TEXT": "Text",
+        "IMAGE": "Image",
+        "VIDEO": "Video",
+        "DOCUMENT": "Document"
+      },
       "DESCRIPTION": "The template is sent to Meta for review. Approval can take from a few minutes to 24 hours.",
       "SUBMIT": "Submit for review",
       "INBOX": "Number",
