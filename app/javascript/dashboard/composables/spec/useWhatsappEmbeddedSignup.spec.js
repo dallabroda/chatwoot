@@ -36,6 +36,14 @@ const createDeferred = () => {
   return { promise, resolve, reject };
 };
 
+const NO_SHARED_ASSETS = {
+  page_ids: [],
+  ad_account_ids: [],
+  dataset_ids: [],
+  catalog_ids: [],
+  instagram_account_ids: [],
+};
+
 const VALID_BUSINESS = {
   business_id: 'biz-1',
   waba_id: 'waba-1',
@@ -84,6 +92,7 @@ describe('useWhatsappEmbeddedSignup', () => {
       waba_id: 'waba-1',
       phone_number_id: 'phone-1',
       is_coexistence: false,
+      shared_assets: NO_SHARED_ASSETS,
     });
     expect(setupFacebookSdk).toHaveBeenCalledWith('app-id', 'v22.0');
     expect(initWhatsAppEmbeddedSignup).toHaveBeenCalledWith('config-id', {});
@@ -109,6 +118,7 @@ describe('useWhatsappEmbeddedSignup', () => {
       waba_id: 'waba-1',
       phone_number_id: 'phone-1',
       is_coexistence: true,
+      shared_assets: NO_SHARED_ASSETS,
     });
   });
 
@@ -130,6 +140,7 @@ describe('useWhatsappEmbeddedSignup', () => {
       waba_id: 'waba-1',
       phone_number_id: '',
       is_coexistence: true,
+      shared_assets: NO_SHARED_ASSETS,
     });
   });
 

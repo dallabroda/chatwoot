@@ -6,6 +6,7 @@ class Whatsapp::EmbeddedSignupService
     @phone_number_id = params[:phone_number_id]
     @inbox_id = inbox_id
     @is_coexistence = ActiveModel::Type::Boolean.new.cast(params[:is_coexistence])
+    @shared_assets = params[:shared_assets]
   end
 
   def perform
@@ -62,7 +63,7 @@ class Whatsapp::EmbeddedSignupService
         waba_id: @waba_id
       ).perform(access_token, phone_info)
     else
-      waba_info = { waba_id: @waba_id, business_name: phone_info[:business_name] }
+      waba_info = { waba_id: @waba_id, business_name: phone_info[:business_name], shared_assets: @shared_assets }
       Whatsapp::ChannelCreationService.new(@account, waba_info, phone_info, access_token).perform
     end
   end

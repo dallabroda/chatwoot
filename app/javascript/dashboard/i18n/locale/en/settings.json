@@ -323,6 +323,21 @@
     "EMPTY_STATE": "No webhook received yet.",
     "FETCH_ERROR": "Could not load the webhooks."
   },
+  "META_ASSETS_PAGE": {
+    "DESCRIPTION": "Assets that businesses shared with this account when connecting WhatsApp.",
+    "TYPES": {
+      "PAGES": "Pages",
+      "AD_ACCOUNTS": "Ad accounts",
+      "DATASETS": "Datasets",
+      "CATALOGS": "Catalogs",
+      "INSTAGRAM_ACCOUNTS": "Instagram accounts"
+    },
+    "ID": "ID {id}",
+    "SHARED_WITH": "Shared with {number}",
+    "UNAVAILABLE": "Details unavailable",
+    "EMPTY_STATE": "Nothing shared yet. Assets appear here when a business shares them during the Meta setup.",
+    "FETCH_ERROR": "Could not load the assets."
+  },
   "PHONE_NUMBERS_PAGE": {
     "HEADER": "Phone numbers",
     "DESCRIPTION": "WhatsApp numbers connected to this account.",
@@ -375,6 +390,7 @@
     "CONVERSATIONS": "Conversations",
     "INBOX": "My Inbox",
     "PHONE_NUMBERS": "Phone numbers",
+    "META_ASSETS": "Meta assets",
     "ALL_CONVERSATIONS": "All Conversations",
     "MENTIONED_CONVERSATIONS": "Mentions",
     "PARTICIPATING_CONVERSATIONS": "Participating",

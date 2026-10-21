@@ -9,6 +9,24 @@ import {
   SIGNUP_RESULT,
 } from 'dashboard/routes/dashboard/settings/inbox/channels/whatsapp/utils';
 
+// Asset ids the business shared with the app during signup (pages, ad accounts, ...),
+// present only when the Meta configuration requests those assets.
+const SHARED_ASSET_KEYS = [
+  'page_ids',
+  'ad_account_ids',
+  'dataset_ids',
+  'catalog_ids',
+  'instagram_account_ids',
+];
+
+const sharedAssetsFrom = businessData =>
+  Object.fromEntries(
+    SHARED_ASSET_KEYS.map(key => [
+      key,
+      (businessData[key] || []).filter(Boolean),
+    ])
+  );
+
 // Drives Meta's WhatsApp embedded-signup popup (Facebook JS SDK). FB.login()
 // resolves an auth `code` while the WABA identifiers (waba_id, phone_number_id)
 // arrive separately over a postMessage event — order isn't guaranteed, so we
@@ -55,6 +73,7 @@ export function useWhatsappEmbeddedSignup() {
           waba_id: businessData.waba_id,
           phone_number_id: businessData.phone_number_id || '',
           is_coexistence: isCoexistence,
+          shared_assets: sharedAssetsFrom(businessData),
         });
       };
 

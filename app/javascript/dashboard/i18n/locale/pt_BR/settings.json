@@ -323,6 +323,21 @@
     "EMPTY_STATE": "Nenhum webhook recebido ainda.",
     "FETCH_ERROR": "Não foi possível carregar os webhooks."
   },
+  "META_ASSETS_PAGE": {
+    "DESCRIPTION": "Ativos que as empresas compartilharam com esta conta ao conectar o WhatsApp.",
+    "TYPES": {
+      "PAGES": "Páginas",
+      "AD_ACCOUNTS": "Contas de anúncio",
+      "DATASETS": "Datasets",
+      "CATALOGS": "Catálogos",
+      "INSTAGRAM_ACCOUNTS": "Contas do Instagram"
+    },
+    "ID": "ID {id}",
+    "SHARED_WITH": "Compartilhado com {number}",
+    "UNAVAILABLE": "Detalhes indisponíveis",
+    "EMPTY_STATE": "Nada compartilhado ainda. Os ativos aparecem aqui quando uma empresa os compartilha durante a conexão com a Meta.",
+    "FETCH_ERROR": "Não foi possível carregar os ativos."
+  },
   "PHONE_NUMBERS_PAGE": {
     "HEADER": "Números de telefone",
     "DESCRIPTION": "Números de WhatsApp conectados a esta conta.",
@@ -375,6 +390,7 @@
     "CONVERSATIONS": "Conversas",
     "INBOX": "Caixa de Entrada",
     "PHONE_NUMBERS": "Números de telefone",
+    "META_ASSETS": "Ativos da Meta",
     "ALL_CONVERSATIONS": "Todas as conversas",
     "MENTIONED_CONVERSATIONS": "Menções",
     "PARTICIPATING_CONVERSATIONS": "Participantes",

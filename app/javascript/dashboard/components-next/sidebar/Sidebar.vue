@@ -24,6 +24,10 @@ import SidebarAccountSwitcher from './SidebarAccountSwitcher.vue';
 import Logo from 'next/icon/Logo.vue';
 import ComposeConversation from 'dashboard/components-next/NewConversation/ComposeConversation.vue';
 import {
+  META_ASSET_TYPES,
+  metaAssetLabels,
+} from 'dashboard/routes/dashboard/phoneNumbers/constants';
+import {
   SIDEBAR_SORT_SECTIONS,
   getSidebarSortOptions,
   resolveSidebarSort,
@@ -385,7 +389,19 @@ const menuItems = computed(() => {
       label: t('SIDEBAR.PHONE_NUMBERS'),
       icon: 'i-lucide-smartphone',
       to: accountScopedRoute('phone_numbers_index'),
-      activeOn: ['phone_numbers_index'],
+      activeOn: ['phone_numbers_index', 'phone_numbers_webhooks'],
+    },
+    {
+      name: 'Meta Assets',
+      label: t('SIDEBAR.META_ASSETS'),
+      icon: 'i-lucide-boxes',
+      children: META_ASSET_TYPES.map(({ type, routeName, icon }) => ({
+        name: `Meta Assets ${type}`,
+        label: metaAssetLabels(t)[type],
+        icon,
+        to: accountScopedRoute(routeName),
+        activeOn: [routeName],
+      })),
     },
     {
       name: 'Conversation',
