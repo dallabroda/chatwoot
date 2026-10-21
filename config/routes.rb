@@ -328,6 +328,9 @@ Rails.application.routes.draw do
           resources :custom_filters, only: [:index, :show, :create, :update, :destroy]
           resources :whatsapp_webhook_events, only: [:index]
           resources :whatsapp_shared_assets, only: [:index]
+          resources :whatsapp_evolution_connections, only: [:create, :destroy] do
+            get :qr, on: :member
+          end
           resource :branded_email_layout, only: [:show, :update]
           resources :inboxes, only: [:index, :show, :create, :update, :destroy] do
             get :assignable_agents, on: :member
@@ -727,6 +730,7 @@ Rails.application.routes.draw do
   post 'webhooks/line/:line_channel_id', to: 'webhooks/line#process_payload'
   post 'webhooks/telegram/:bot_token', to: 'webhooks/telegram#process_payload'
   post 'webhooks/sms/:phone_number', to: 'webhooks/sms#process_payload'
+  post 'webhooks/evolution/:instance_name', to: 'webhooks/evolution#process_payload'
   get 'webhooks/whatsapp/:phone_number', to: 'webhooks/whatsapp#verify'
   post 'webhooks/whatsapp/:phone_number', to: 'webhooks/whatsapp#process_payload'
   get 'webhooks/instagram', to: 'webhooks/instagram#verify'
