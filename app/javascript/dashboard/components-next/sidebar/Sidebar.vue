@@ -381,6 +381,13 @@ const menuItems = computed(() => {
       },
     },
     {
+      name: 'Phone Numbers',
+      label: t('SIDEBAR.PHONE_NUMBERS'),
+      icon: 'i-lucide-smartphone',
+      to: accountScopedRoute('phone_numbers_index'),
+      activeOn: ['phone_numbers_index'],
+    },
+    {
       name: 'Conversation',
       label: t('SIDEBAR.CONVERSATIONS'),
       icon: 'i-lucide-message-circle',

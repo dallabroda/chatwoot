@@ -315,6 +315,21 @@
       "NEW_INBOX": "Add Inbox"
     }
   },
+  "PHONE_NUMBERS_PAGE": {
+    "HEADER": "Phone numbers",
+    "DESCRIPTION": "WhatsApp numbers connected to this account.",
+    "ADD_NUMBER": "Add number",
+    "EMPTY_STATE": "No WhatsApp number connected yet.",
+    "OPEN_CONVERSATIONS": "Conversations",
+    "SETTINGS": "Settings",
+    "STATUS": {
+      "CONNECTED": "Connected"
+    },
+    "QUALITY": "Quality: {rating}",
+    "COEXISTENCE": "Coexistence",
+    "HEALTH_UNAVAILABLE": "Status unavailable",
+    "REAUTHORIZATION_REQUIRED": "Reauthorization required"
+  },
   "SIDEBAR": {
     "NO_ITEMS": "No items",
     "CURRENTLY_VIEWING_ACCOUNT": "Currently viewing:",
@@ -322,6 +337,7 @@
     "INBOX_VIEW": "Inbox View",
     "CONVERSATIONS": "Conversations",
     "INBOX": "My Inbox",
+    "PHONE_NUMBERS": "Phone numbers",
     "ALL_CONVERSATIONS": "All Conversations",
     "MENTIONED_CONVERSATIONS": "Mentions",
     "PARTICIPATING_CONVERSATIONS": "Participating",
