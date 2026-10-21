@@ -15,6 +15,10 @@ class UserPolicy < ApplicationPolicy
     @account_user.administrator?
   end
 
+  def resend_confirmation?
+    @account_user.administrator?
+  end
+
   def bulk_create?
     @account_user.administrator?
   end
