@@ -16,6 +16,9 @@ const authorizeUrl = computed(() => {
     redirect_uri: `${hostURL}/omniauth/auth0/callback`,
     response_type: 'code',
     scope: 'openid email profile',
+    // Forces every Auth0-hosted screen (login, social picker, consent, ...) into
+    // Portuguese using Auth0's built-in translations, no per-screen text overrides needed.
+    ui_locales: 'pt-BR',
   };
   if (props.redirectUrl) query.state = props.redirectUrl;
   if (props.ssoAccountId) {
