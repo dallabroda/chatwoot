@@ -330,6 +330,34 @@
     "WEBHOOKS": "Webhooks",
     "EMPTY_STATE": "Nenhum número de WhatsApp conectado ainda.",
     "OPEN_CONVERSATIONS": "Conversas",
+    "MANAGE_NUMBER": "Gerenciar",
+    "MANAGE": {
+      "TITLE": "Gerenciar {number}",
+      "CLOSE": "Fechar",
+      "CANCEL": "Cancelar",
+      "ERROR": "A solicitação ao WhatsApp falhou.",
+      "VERIFY_TITLE": "Verificar número",
+      "VERIFY_DESC": "Confirme que o número é seu com um código de 6 dígitos enviado pelo WhatsApp.",
+      "CODE_METHODS": {
+        "SMS": "Mensagem de texto",
+        "VOICE": "Ligação"
+      },
+      "SEND_CODE": "Enviar código",
+      "CODE_PLACEHOLDER": "Código de 6 dígitos",
+      "VERIFY": "Verificar",
+      "CODE_SENT": "Código enviado para o número.",
+      "VERIFIED": "Número verificado.",
+      "REGISTER_TITLE": "Registrar na Cloud API",
+      "REGISTER_DESC": "Ativa o número para enviar e receber mensagens. O PIN vira o PIN da verificação em duas etapas; se o número já tiver um, use o mesmo PIN.",
+      "PIN_PLACEHOLDER": "PIN de 6 dígitos",
+      "REGISTER": "Registrar",
+      "REGISTERED": "Número registrado.",
+      "DEREGISTER_TITLE": "Remover registro",
+      "DEREGISTER_DESC": "O número para de enviar e receber mensagens pela Cloud API até ser registrado de novo.",
+      "DEREGISTER": "Remover registro",
+      "CONFIRM_DEREGISTER": "Sim, remover registro",
+      "DEREGISTERED": "Registro removido."
+    },
     "SETTINGS": "Configurações",
     "STATUS": {
       "CONNECTED": "Conectado"

@@ -1,8 +1,6 @@
 class Whatsapp::TemplateManagementService
   API_VERSION = 'v22.0'.freeze
 
-  class ApiError < StandardError; end
-
   def initialize(whatsapp_channel)
     @whatsapp_channel = whatsapp_channel
   end
@@ -10,7 +8,7 @@ class Whatsapp::TemplateManagementService
   # Submits the template to Meta for approval and refreshes the cached template list.
   def create(template)
     response = HTTParty.post(templates_url, headers: @whatsapp_channel.api_headers, body: request_body(template).to_json)
-    raise ApiError, meta_error_message(response) unless response.success?
+    raise Whatsapp::MetaApiError.from_response(response) unless response.success?
 
     @whatsapp_channel.sync_templates
     response.parsed_response
@@ -18,7 +16,7 @@ class Whatsapp::TemplateManagementService
 
   def delete(name)
     response = HTTParty.delete(templates_url, headers: @whatsapp_channel.api_headers, query: { name: name })
-    raise ApiError, meta_error_message(response) unless response.success?
+    raise Whatsapp::MetaApiError.from_response(response) unless response.success?
 
     @whatsapp_channel.sync_templates
   end
@@ -61,13 +59,5 @@ class Whatsapp::TemplateManagementService
     return if template[:buttons].blank?
 
     { type: 'BUTTONS', buttons: template[:buttons].map { |button| button.to_h.compact_blank } }
-  end
-
-  # Meta explains rejections (bad name, missing examples, policy) in error_user_msg
-  def meta_error_message(response)
-    error = response.parsed_response.is_a?(Hash) ? response.parsed_response['error'] : nil
-    return "WhatsApp API request failed (#{response.code})" if error.blank?
-
-    error['error_user_msg'].presence || error['message']
   end
 end

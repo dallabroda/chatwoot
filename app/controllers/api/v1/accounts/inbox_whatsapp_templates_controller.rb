@@ -11,14 +11,14 @@ class Api::V1::Accounts::InboxWhatsappTemplatesController < Api::V1::Accounts::B
 
     result = template_service.create(template)
     render json: result, status: :created
-  rescue Whatsapp::TemplateManagementService::ApiError => e
+  rescue Whatsapp::MetaApiError => e
     render json: { error: e.message }, status: :unprocessable_entity
   end
 
   def destroy
     template_service.delete(params[:name])
     head :ok
-  rescue Whatsapp::TemplateManagementService::ApiError => e
+  rescue Whatsapp::MetaApiError => e
     render json: { error: e.message }, status: :unprocessable_entity
   end
 

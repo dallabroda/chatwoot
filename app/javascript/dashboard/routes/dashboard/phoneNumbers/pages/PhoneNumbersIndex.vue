@@ -10,6 +10,7 @@ import Button from 'dashboard/components-next/button/Button.vue';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
 import Label from 'dashboard/components-next/label/Label.vue';
 import Spinner from 'dashboard/components-next/spinner/Spinner.vue';
+import ManageNumberDialog from '../components/ManageNumberDialog.vue';
 
 const QUALITY_COLORS = { GREEN: 'teal', YELLOW: 'amber', RED: 'ruby' };
 const CONNECTED_STATUS = 'CONNECTED';
@@ -21,6 +22,7 @@ const store = useStore();
 const inboxes = useMapGetter('inboxes/getInboxes');
 const isLoading = ref(true);
 const healthByInbox = ref({});
+const manageDialogRef = ref(null);
 
 const whatsappInboxes = computed(() =>
   inboxes.value.filter(inbox => inbox.channel_type === INBOX_TYPES.WHATSAPP)
@@ -198,6 +200,14 @@ onMounted(async () => {
               @click="openConversations(inbox)"
             />
             <Button
+              v-if="inbox.provider === 'whatsapp_cloud'"
+              :label="t('PHONE_NUMBERS_PAGE.MANAGE_NUMBER')"
+              faded
+              slate
+              size="sm"
+              @click="manageDialogRef.open(inbox)"
+            />
+            <Button
               :label="t('PHONE_NUMBERS_PAGE.SETTINGS')"
               faded
               slate
@@ -208,5 +218,6 @@ onMounted(async () => {
         </li>
       </ul>
     </main>
+    <ManageNumberDialog ref="manageDialogRef" @updated="fetchHealth" />
   </section>
 </template>

@@ -37,6 +37,32 @@ class Inboxes extends CacheEnabledApiClient {
     return axios.post(`${this.url}/${inboxId}/whatsapp_templates`, payload);
   }
 
+  requestWhatsappVerificationCode(inboxId, codeMethod) {
+    return axios.post(
+      `${this.url}/${inboxId}/whatsapp_phone_number/request_code`,
+      { code_method: codeMethod }
+    );
+  }
+
+  verifyWhatsappCode(inboxId, code) {
+    return axios.post(
+      `${this.url}/${inboxId}/whatsapp_phone_number/verify_code`,
+      { code }
+    );
+  }
+
+  registerWhatsappNumber(inboxId, pin) {
+    return axios.post(`${this.url}/${inboxId}/whatsapp_phone_number/register`, {
+      pin,
+    });
+  }
+
+  deregisterWhatsappNumber(inboxId) {
+    return axios.post(
+      `${this.url}/${inboxId}/whatsapp_phone_number/deregister`
+    );
+  }
+
   deleteWhatsappTemplate(inboxId, name) {
     return axios.delete(
       `${this.url}/${inboxId}/whatsapp_templates/${encodeURIComponent(name)}`
