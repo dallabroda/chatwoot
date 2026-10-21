@@ -12,7 +12,7 @@ class ApplicationMailer < ActionMailer::Base
   helper :frontend_urls
   helper do
     def global_config
-      @global_config ||= GlobalConfig.get('BRAND_NAME', 'BRAND_URL')
+      @global_config ||= GlobalConfig.get('BRAND_NAME', 'BRAND_URL', 'LOGO')
     end
   end
 
@@ -54,7 +54,8 @@ class ApplicationMailer < ActionMailer::Base
   def liquid_locals
     # expose variables you want to be exposed in liquid
     locals = {
-      global_config: GlobalConfig.get('BRAND_NAME', 'BRAND_URL'),
+      global_config: GlobalConfig.get('BRAND_NAME', 'BRAND_URL', 'LOGO'),
+      mailer_footer: I18n.t('mailer.footer').stringify_keys,
       action_url: @action_url
     }
 
@@ -76,6 +77,8 @@ class ApplicationMailer < ActionMailer::Base
 
   def switch_locale(&)
     locale ||= locale_from_account(Current.account)
+    # Mails without an account (password reset, invitations) follow DEFAULT_LOCALE like the dashboard
+    locale ||= ENV.fetch('DEFAULT_LOCALE', nil).presence
     locale ||= I18n.default_locale
     # ensure locale won't bleed into other requests
     # https://guides.rubyonrails.org/i18n.html#managing-the-locale-across-requests

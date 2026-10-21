@@ -1105,3 +1105,44 @@ en:
         test_email:
           queued: 'Test email on its way to %{email}. Ask the user to check their inbox and spam folder.'
           subject: 'Test email from %{brand_name} support'
+  mailer:
+    footer:
+      sent_by: 'This email was sent by'
+      notifications_enabled: "You're receiving this email because email notifications are enabled for your account."
+      manage_notifications: 'Manage notification preferences'
+  devise_mailer:
+    greeting: 'Hi %{name},'
+    button_fallback: 'If the button does not work, open'
+    secure_link: 'this secure link'
+    reset_password:
+      eyebrow: 'Password reset'
+      heading: 'Reset your password'
+      intro: 'Someone requested a link to change the password of your %{brand_name} account.'
+      supporting: "If it wasn't you, ignore this email. Your password only changes after you open the link and create a new one."
+      action: 'Create a new password'
+    confirmation:
+      welcome_eyebrow: 'Welcome'
+      welcome_heading: 'Confirm your email to get started'
+      welcome_intro: 'Welcome to %{brand_name}. We just need to verify your email address before you can start using your account.'
+      welcome_supporting: 'This only takes a moment.'
+      welcome_action: 'Confirm my account'
+      new_email_label: 'New email'
+      update_eyebrow: 'Email update'
+      update_heading: 'Confirm your new email address'
+      update_intro: 'We received a request to update the email address on your %{brand_name} account.'
+      update_supporting: 'Confirm the new address below to finish the change.'
+      update_action: 'Confirm email address'
+      ready_eyebrow: 'Account ready'
+      ready_heading: 'Your account is ready'
+      ready_intro: 'Your %{brand_name} account is already active.'
+      ready_supporting: 'Use the button below to sign in and continue where you left off.'
+      ready_action: 'Open my account'
+      invite_eyebrow: 'Workspace invitation'
+      invite_heading_account: "You're invited to join %{account_name}"
+      invite_heading: "You're invited to try %{brand_name}"
+      invite_intro_account: '%{inviter} invited you to join the %{account_name} workspace on %{brand_name}.'
+      invite_intro: '%{inviter} invited you to try %{brand_name}.'
+      invite_supporting: 'Create your account to start collaborating with your team.'
+      invite_action: 'Accept invitation'
+      invited_by_label: 'Invited by'
+      workspace_label: 'Workspace'
