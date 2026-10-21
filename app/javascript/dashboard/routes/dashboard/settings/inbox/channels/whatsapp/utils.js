@@ -114,7 +114,30 @@ export const createMessageHandler = onEmbeddedSignupData => {
   };
 };
 
-export const initWhatsAppEmbeddedSignup = configId => {
+export const EMBEDDED_SIGNUP_VERSIONS = ['v4', 'v4-public-preview', 'v3'];
+
+export const DEFAULT_EMBEDDED_SIGNUP_VERSION = 'v4';
+
+// cloud_api onboards a number that is not on the WhatsApp Business app;
+// coexistence keeps an existing WhatsApp Business app number usable on the phone.
+export const EMBEDDED_SIGNUP_MODES = Object.freeze({
+  CLOUD_API: 'cloud_api',
+  COEXISTENCE: 'coexistence',
+});
+
+const COEXISTENCE_FEATURE_TYPE = 'whatsapp_business_app_onboarding';
+
+export const initWhatsAppEmbeddedSignup = (
+  configId,
+  {
+    mode = EMBEDDED_SIGNUP_MODES.COEXISTENCE,
+    version = DEFAULT_EMBEDDED_SIGNUP_VERSION,
+  } = {}
+) => {
+  const extras = { setup: {}, sessionInfoVersion: '3', version };
+  if (mode === EMBEDDED_SIGNUP_MODES.COEXISTENCE) {
+    extras.featureType = COEXISTENCE_FEATURE_TYPE;
+  }
   return new Promise((resolve, reject) => {
     window.FB.login(
       response => {
@@ -130,11 +153,7 @@ export const initWhatsAppEmbeddedSignup = configId => {
         config_id: configId,
         response_type: 'code',
         override_default_response_type: true,
-        extras: {
-          setup: {},
-          featureType: 'whatsapp_business_app_onboarding',
-          sessionInfoVersion: '3',
-        },
+        extras,
       }
     );
   });

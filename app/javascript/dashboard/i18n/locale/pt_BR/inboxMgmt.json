@@ -407,6 +407,20 @@
             "TEXT": "Para saber mais sobre a configuração rápida, preços e limitações, acesse {link}.",
             "LINK_TEXT": "este link"
           },
+          "MODE": {
+            "LABEL": "Como você quer conectar?",
+            "CLOUD_API": {
+              "TITLE": "Número novo",
+              "DESC": "Um número que não está em uso no app do WhatsApp. Ele vai funcionar só pela API."
+            },
+            "COEXISTENCE": {
+              "TITLE": "Número do app WhatsApp Business (coexistência)",
+              "DESC": "Continue usando o app WhatsApp Business no celular e também receba e envie mensagens por aqui."
+            }
+          },
+          "VERSION": {
+            "LABEL": "Versão do Embedded Signup"
+          },
           "SUBMIT_BUTTON": "Conecte-se com WhatsApp Business",
           "AUTH_PROCESSING": "Autenticando com Meta",
           "WAITING_FOR_BUSINESS_INFO": "Por favor, complete a configuração do negócio na janela da Meta...",

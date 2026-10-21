@@ -24,7 +24,9 @@ export function useWhatsappEmbeddedSignup() {
   const { t } = useI18n();
   const isAuthenticating = ref(false);
 
-  const runEmbeddedSignup = () => {
+  // `options` ({ mode, version }) is forwarded to the Meta popup; omitted values
+  // fall back to the defaults in initWhatsAppEmbeddedSignup.
+  const runEmbeddedSignup = (options = {}) => {
     if (isAuthenticating.value) return Promise.resolve(null);
     isAuthenticating.value = true;
 
@@ -97,7 +99,8 @@ export function useWhatsappEmbeddedSignup() {
             window.chatwootConfig?.whatsappApiVersion
           );
           authCode = await initWhatsAppEmbeddedSignup(
-            window.chatwootConfig?.whatsappConfigurationId
+            window.chatwootConfig?.whatsappConfigurationId,
+            options
           );
           resolveIfReady();
         } catch (error) {

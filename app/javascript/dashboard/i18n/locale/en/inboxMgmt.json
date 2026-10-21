@@ -407,6 +407,20 @@
             "TEXT": "To learn more about quick setup, pricing, and limitations, visit {link}.",
             "LINK_TEXT": "this link"
           },
+          "MODE": {
+            "LABEL": "How do you want to connect?",
+            "CLOUD_API": {
+              "TITLE": "New number",
+              "DESC": "A number that is not in use on the WhatsApp app. It will work only through the API."
+            },
+            "COEXISTENCE": {
+              "TITLE": "WhatsApp Business app number (coexistence)",
+              "DESC": "Keep using the WhatsApp Business app on the phone and also receive and send messages here."
+            }
+          },
+          "VERSION": {
+            "LABEL": "Embedded Signup version"
+          },
           "SUBMIT_BUTTON": "Connect with WhatsApp Business",
           "AUTH_PROCESSING": "Authenticating with Meta",
           "WAITING_FOR_BUSINESS_INFO": "Please complete business setup in the Meta window...",

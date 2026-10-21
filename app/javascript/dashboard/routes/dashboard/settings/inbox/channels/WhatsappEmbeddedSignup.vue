@@ -8,10 +8,17 @@ import { useWhatsappEmbeddedSignup } from 'dashboard/composables/useWhatsappEmbe
 import Icon from 'next/icon/Icon.vue';
 import NextButton from 'next/button/Button.vue';
 import Banner from 'next/banner/Banner.vue';
+import RadioCard from 'dashboard/components-next/radioCard/RadioCard.vue';
+import Select from 'dashboard/components-next/select/Select.vue';
 import LoadingState from 'dashboard/components/widgets/LoadingState.vue';
 import InboxesAPI from 'dashboard/api/inboxes';
 import { parseAPIErrorResponse } from 'dashboard/store/utils/api';
 import globalConstants from 'dashboard/constants/globals.js';
+import {
+  EMBEDDED_SIGNUP_MODES,
+  EMBEDDED_SIGNUP_VERSIONS,
+  DEFAULT_EMBEDDED_SIGNUP_VERSION,
+} from './whatsapp/utils';
 
 const props = defineProps({
   enableCallingOnComplete: {
@@ -39,6 +46,30 @@ const { isAuthenticating, runEmbeddedSignup } = useWhatsappEmbeddedSignup();
 
 const isProcessing = ref(false);
 const processingMessage = ref('');
+const signupMode = ref(EMBEDDED_SIGNUP_MODES.CLOUD_API);
+const signupVersion = ref(DEFAULT_EMBEDDED_SIGNUP_VERSION);
+
+const signupModes = computed(() => [
+  {
+    id: EMBEDDED_SIGNUP_MODES.CLOUD_API,
+    label: t('INBOX_MGMT.ADD.WHATSAPP.EMBEDDED_SIGNUP.MODE.CLOUD_API.TITLE'),
+    description: t(
+      'INBOX_MGMT.ADD.WHATSAPP.EMBEDDED_SIGNUP.MODE.CLOUD_API.DESC'
+    ),
+  },
+  {
+    id: EMBEDDED_SIGNUP_MODES.COEXISTENCE,
+    label: t('INBOX_MGMT.ADD.WHATSAPP.EMBEDDED_SIGNUP.MODE.COEXISTENCE.TITLE'),
+    description: t(
+      'INBOX_MGMT.ADD.WHATSAPP.EMBEDDED_SIGNUP.MODE.COEXISTENCE.DESC'
+    ),
+  },
+]);
+
+const versionOptions = EMBEDDED_SIGNUP_VERSIONS.map(version => ({
+  value: version,
+  label: version,
+}));
 
 const benefits = computed(() => [
   {
@@ -98,7 +129,10 @@ const launchEmbeddedSignup = async () => {
 
   let credentials;
   try {
-    credentials = await runEmbeddedSignup();
+    credentials = await runEmbeddedSignup({
+      mode: signupMode.value,
+      version: signupVersion.value,
+    });
   } catch (error) {
     useAlert(
       error.message ||
@@ -164,6 +198,35 @@ const launchEmbeddedSignup = async () => {
           <Icon icon="i-lucide-check" class="text-n-slate-11 size-4" />
           {{ benefit.text }}
         </div>
+      </div>
+
+      <div class="flex flex-col gap-3 mb-6">
+        <span class="text-sm font-medium text-n-slate-12">
+          {{ $t('INBOX_MGMT.ADD.WHATSAPP.EMBEDDED_SIGNUP.MODE.LABEL') }}
+        </span>
+        <RadioCard
+          v-for="mode in signupModes"
+          :id="mode.id"
+          :key="mode.id"
+          name="whatsapp-signup-mode"
+          :label="mode.label"
+          :description="mode.description"
+          :is-active="signupMode === mode.id"
+          @select="signupMode = $event"
+        />
+      </div>
+
+      <div class="flex items-center justify-between gap-3 mb-6">
+        <span class="text-sm text-n-slate-11">
+          {{ $t('INBOX_MGMT.ADD.WHATSAPP.EMBEDDED_SIGNUP.VERSION.LABEL') }}
+        </span>
+        <Select
+          v-model="signupVersion"
+          :options="versionOptions"
+          :aria-label="
+            $t('INBOX_MGMT.ADD.WHATSAPP.EMBEDDED_SIGNUP.VERSION.LABEL')
+          "
+        />
       </div>
 
       <div class="flex flex-col gap-2 mb-6">

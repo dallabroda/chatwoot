@@ -86,7 +86,7 @@ describe('useWhatsappEmbeddedSignup', () => {
       is_coexistence: false,
     });
     expect(setupFacebookSdk).toHaveBeenCalledWith('app-id', 'v22.0');
-    expect(initWhatsAppEmbeddedSignup).toHaveBeenCalledWith('config-id');
+    expect(initWhatsAppEmbeddedSignup).toHaveBeenCalledWith('config-id', {});
   });
 
   it('resolves credentials when the business data arrives before the auth code', async () => {
