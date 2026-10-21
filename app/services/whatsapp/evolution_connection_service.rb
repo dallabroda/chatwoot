@@ -3,9 +3,10 @@
 # integration. See app/models/channel/api.rb and app/listeners/webhook_listener.rb
 # for how Chatwoot already bridges Channel::Api message content with no extra code.
 class Whatsapp::EvolutionConnectionService
-  def initialize(channel, instance_name)
+  def initialize(channel, instance_name, inbox_name: nil)
     @channel = channel
     @instance_name = instance_name
+    @inbox_name = inbox_name
   end
 
   # Creates the WhatsApp-Web session on Evolution, returns the initial QR payload.
@@ -17,6 +18,7 @@ class Whatsapp::EvolutionConnectionService
   # stamps the inbox's own webhook_url with the one Evolution hands back — Evolution
   # does not do this automatically (confirmed by manual testing).
   def link_chatwoot(access_token:, chatwoot_url:)
+    inbox_name = @inbox_name.presence || @channel.inbox&.name || @channel.reload.inbox&.name
     response = post("/chatwoot/set/#{@instance_name}",
                      enabled: true,
                      accountId: @channel.account_id.to_s,
@@ -25,7 +27,7 @@ class Whatsapp::EvolutionConnectionService
                      signMsg: true,
                      reopenConversation: true,
                      conversationPending: false,
-                     nameInbox: @channel.inbox.name,
+                     nameInbox: inbox_name,
                      autoCreate: false)
 
     @channel.update!(webhook_url: response['webhook_url']) if response['webhook_url'].present?

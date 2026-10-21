@@ -14,22 +14,29 @@ class Api::V1::Accounts::WhatsappEvolutionConnectionsController < Api::V1::Accou
     instance_name = "cw_#{Current.account.id}_#{SecureRandom.hex(6)}"
     inbox = nil
     qr_response = nil
+    service = nil
 
-    ActiveRecord::Base.transaction do
-      channel = Channel::Api.create!(account: Current.account)
-      inbox = Current.account.inboxes.create!(name: params[:name], channel: channel)
-      channel.update!(additional_attributes: {
-                         'connection_type' => 'evolution_qr',
-                         'evolution_instance_name' => instance_name,
-                         'connection_state' => 'qr_pending',
-                         'risk_accepted_at' => Time.current,
-                         'risk_accepted_by' => Current.user.email
-                       })
+    begin
+      ActiveRecord::Base.transaction do
+        channel = Channel::Api.create!(account: Current.account)
+        inbox = Current.account.inboxes.create!(name: params[:name], channel: channel)
+        channel.update!(additional_attributes: {
+                           'connection_type' => 'evolution_qr',
+                           'evolution_instance_name' => instance_name,
+                           'connection_state' => 'qr_pending',
+                           'risk_accepted_at' => Time.current,
+                           'risk_accepted_by' => Current.user.email
+                         })
+        channel.reload
 
-      service = Whatsapp::EvolutionConnectionService.new(channel, instance_name)
-      qr_response = service.create_instance
-      service.link_chatwoot(access_token: access_token_for_current_user, chatwoot_url: ENV.fetch('FRONTEND_URL', nil))
-      service.register_status_webhook(evolution_status_webhook_url(instance_name))
+        service = Whatsapp::EvolutionConnectionService.new(channel, instance_name, inbox_name: inbox.name)
+        qr_response = service.create_instance
+        service.link_chatwoot(access_token: access_token_for_current_user, chatwoot_url: ENV.fetch('FRONTEND_URL', nil))
+        service.register_status_webhook(evolution_status_webhook_url(instance_name))
+      end
+    rescue StandardError => e
+      service&.delete_instance rescue nil
+      raise e
     end
 
     render json: {
