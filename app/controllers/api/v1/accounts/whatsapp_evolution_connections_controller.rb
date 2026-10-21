@@ -78,7 +78,7 @@ class Api::V1::Accounts::WhatsappEvolutionConnectionsController < Api::V1::Accou
   end
 
   def evolution_status_webhook_url(instance_name)
-    base = ENV.fetch('RAILS_INTERNAL_URL', 'http://rails:3000')
+    base = ENV['RAILS_INTERNAL_URL'].presence || ENV['FRONTEND_URL'].presence || 'http://rails:3000'
     "#{base}/webhooks/evolution/#{instance_name}"
   end
 

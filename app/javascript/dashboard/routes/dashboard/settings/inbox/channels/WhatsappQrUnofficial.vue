@@ -3,6 +3,7 @@ import { onBeforeUnmount, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { useAlert } from 'dashboard/composables';
+import { useStore } from 'dashboard/composables/store';
 import { emitter } from 'shared/helpers/mitt';
 import { BUS_EVENTS } from 'shared/constants/busEvents';
 import WhatsappEvolutionConnectionsAPI from 'dashboard/api/whatsappEvolutionConnections';
@@ -14,6 +15,7 @@ import Spinner from 'dashboard/components-next/spinner/Spinner.vue';
 
 const router = useRouter();
 const { t } = useI18n();
+const store = useStore();
 
 const step = ref('form'); // form -> connecting -> qr -> connected
 const inboxName = ref('');
@@ -22,8 +24,14 @@ const isSubmitting = ref(false);
 const errorMessage = ref('');
 const qrCode = ref('');
 const inboxId = ref(null);
+let pollTimer = null;
 
-const canSubmit = () => inboxName.value.trim() && riskAccepted.value;
+const stopPolling = () => {
+  if (pollTimer) {
+    clearInterval(pollTimer);
+    pollTimer = null;
+  }
+};
 
 const onQrUpdated = payload => {
   if (!inboxId.value || payload.inbox_id !== inboxId.value) return;
@@ -34,6 +42,7 @@ const onQrUpdated = payload => {
   }
 
   if (payload.connection_state === 'connected') {
+    stopPolling();
     step.value = 'connected';
     useAlert(t('INBOX_MGMT.ADD.WHATSAPP.QR_UNOFFICIAL.CONNECTED'));
     router.replace({
@@ -43,11 +52,32 @@ const onQrUpdated = payload => {
   }
 };
 
+const pollConnectionStatus = async () => {
+  if (!inboxId.value || step.value === 'connected') {
+    stopPolling();
+    return;
+  }
+  try {
+    await store.dispatch('inboxes/get');
+    const inboxes = store.getters['inboxes/getInboxes'];
+    const currentInbox = inboxes.find(i => i.id === inboxId.value);
+    if (currentInbox?.additional_attributes?.connection_state === 'connected') {
+      stopPolling();
+      onQrUpdated({ inbox_id: inboxId.value, connection_state: 'connected' });
+    }
+  } catch {
+    // silent
+  }
+};
+
+const canSubmit = () => inboxName.value.trim() && riskAccepted.value;
+
 onMounted(() => {
   emitter.on(BUS_EVENTS.WHATSAPP_QR_UPDATED, onQrUpdated);
 });
 
 onBeforeUnmount(() => {
+  stopPolling();
   emitter.off(BUS_EVENTS.WHATSAPP_QR_UPDATED, onQrUpdated);
 });
 
@@ -66,7 +96,10 @@ const connect = async () => {
     inboxId.value = data.id;
     qrCode.value = data.qr_code;
     step.value = 'qr';
+    stopPolling();
+    pollTimer = setInterval(pollConnectionStatus, 3000);
   } catch (error) {
+    stopPolling();
     errorMessage.value =
       error?.response?.data?.error ||
       t('INBOX_MGMT.ADD.WHATSAPP.QR_UNOFFICIAL.ERROR');
