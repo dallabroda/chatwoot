@@ -72,6 +72,7 @@ class ActionCableConnector extends BaseActionCableConnector {
       'voice_call.outbound_connected': this.onVoiceCallOutboundConnected,
       'voice_call.outbound_accepted': this.onVoiceCallOutboundAccepted,
       'voice_call.ended': this.onVoiceCallEnded,
+      'whatsapp_qr.updated': this.onWhatsappQrUpdated,
     };
   }
 
@@ -535,6 +536,11 @@ class ActionCableConnector extends BaseActionCableConnector {
       }
     }
     useCallsStore().removeCall(data.call_id);
+  };
+
+  // eslint-disable-next-line class-methods-use-this
+  onWhatsappQrUpdated = data => {
+    emitter.emit(BUS_EVENTS.WHATSAPP_QR_UPDATED, data);
   };
 }
 

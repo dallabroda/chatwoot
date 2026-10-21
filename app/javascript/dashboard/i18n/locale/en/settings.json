@@ -380,7 +380,8 @@
     "QUALITY": "Quality: {rating}",
     "COEXISTENCE": "Coexistence",
     "HEALTH_UNAVAILABLE": "Status unavailable",
-    "REAUTHORIZATION_REQUIRED": "Reauthorization required"
+    "REAUTHORIZATION_REQUIRED": "Reauthorization required",
+    "UNOFFICIAL": "Unofficial"
   },
   "SIDEBAR": {
     "NO_ITEMS": "No items",

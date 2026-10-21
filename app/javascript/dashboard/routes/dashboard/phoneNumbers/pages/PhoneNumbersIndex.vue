@@ -24,8 +24,13 @@ const isLoading = ref(true);
 const healthByInbox = ref({});
 const manageDialogRef = ref(null);
 
+const isEvolutionQr = inbox =>
+  inbox.additional_attributes?.connection_type === 'evolution_qr';
+
 const whatsappInboxes = computed(() =>
-  inboxes.value.filter(inbox => inbox.channel_type === INBOX_TYPES.WHATSAPP)
+  inboxes.value.filter(
+    inbox => inbox.channel_type === INBOX_TYPES.WHATSAPP || isEvolutionQr(inbox)
+  )
 );
 
 // Health comes from the Cloud API; other WhatsApp providers have no equivalent
@@ -131,15 +136,44 @@ onMounted(async () => {
             </div>
             <div class="flex flex-col min-w-0 gap-1">
               <span class="text-sm font-medium truncate text-n-slate-12">
-                {{ inbox.phone_number }}
+                {{ inbox.phone_number || inbox.name }}
               </span>
-              <span class="text-sm truncate text-n-slate-11">
+              <span
+                v-if="
+                  inbox.phone_number &&
+                  (healthByInbox[inbox.id]?.verified_name || inbox.name)
+                "
+                class="text-sm truncate text-n-slate-11"
+              >
                 {{ healthByInbox[inbox.id]?.verified_name || inbox.name }}
               </span>
             </div>
           </div>
 
           <div class="flex flex-wrap items-center gap-2">
+            <Label
+              v-if="isEvolutionQr(inbox)"
+              :label="t('PHONE_NUMBERS_PAGE.UNOFFICIAL')"
+              color="ruby"
+              compact
+            />
+            <Label
+              v-if="
+                isEvolutionQr(inbox) &&
+                inbox.additional_attributes?.connection_state
+              "
+              :label="
+                inbox.additional_attributes.connection_state === 'connected'
+                  ? t('PHONE_NUMBERS_PAGE.STATUS.CONNECTED')
+                  : inbox.additional_attributes.connection_state
+              "
+              :color="
+                inbox.additional_attributes.connection_state === 'connected'
+                  ? 'teal'
+                  : 'amber'
+              "
+              compact
+            />
             <template v-if="healthByInbox[inbox.id]?.unavailable">
               <Label
                 :label="t('PHONE_NUMBERS_PAGE.HEALTH_UNAVAILABLE')"

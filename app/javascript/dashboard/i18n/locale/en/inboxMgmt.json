@@ -253,7 +253,22 @@
           "WHATSAPP_CLOUD_DESC": "Quick setup through Meta",
           "WHATSAPP_CLOUD_MANUAL_SETUP_DESC": "Manual setup with Cloud API credentials",
           "TWILIO_DESC": "Connect via Twilio credentials",
-          "360_DIALOG": "360Dialog"
+          "360_DIALOG": "360Dialog",
+          "QR_UNOFFICIAL": "QR Code (Unofficial)",
+          "QR_UNOFFICIAL_DESC": "Scan a QR code, no Meta verification needed. Unofficial, risk of ban."
+        },
+        "QR_UNOFFICIAL": {
+          "NAME_LABEL": "Inbox name",
+          "NAME_PLACEHOLDER": "e.g. Sales WhatsApp",
+          "RISK_TITLE": "Unofficial connection — risk of permanent ban",
+          "RISK_BODY": "This method uses WhatsApp's unofficial Web protocol instead of Meta's official Business API. WhatsApp can permanently ban the number for automated business use, with no appeal, at any time. Use only if you understand and accept this risk.",
+          "RISK_CHECKBOX": "I have read and understand the risk",
+          "CONNECT_BUTTON": "Connect",
+          "CONNECTING": "Starting connection…",
+          "SCAN_INSTRUCTIONS": "Open WhatsApp on the phone you want to connect, go to Linked Devices, and scan this code.",
+          "WAITING_FOR_SCAN": "Waiting for scan…",
+          "CONNECTED": "WhatsApp connected successfully.",
+          "ERROR": "Could not start the connection. Please try again."
         },
         "SELECT_PROVIDER": {
           "TITLE": "Select your API provider",

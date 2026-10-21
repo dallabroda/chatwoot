@@ -253,7 +253,22 @@
           "WHATSAPP_CLOUD_DESC": "Configuração rápida via Meta",
           "WHATSAPP_CLOUD_MANUAL_SETUP_DESC": "Configuração manual com credenciais da Cloud API",
           "TWILIO_DESC": "Conectar através de credenciais Twilio",
-          "360_DIALOG": "360Dialog"
+          "360_DIALOG": "360Dialog",
+          "QR_UNOFFICIAL": "Código QR (Não-oficial)",
+          "QR_UNOFFICIAL_DESC": "Escaneie um código QR, sem necessidade de verificação da Meta. Não-oficial, com risco de banimento."
+        },
+        "QR_UNOFFICIAL": {
+          "NAME_LABEL": "Nome da caixa de entrada",
+          "NAME_PLACEHOLDER": "ex: WhatsApp Vendas",
+          "RISK_TITLE": "Conexão não-oficial — risco de banimento permanente",
+          "RISK_BODY": "Este método utiliza o protocolo Web não-oficial do WhatsApp em vez da API Cloud oficial da Meta. O WhatsApp pode banir permanentemente o número para uso comercial automatizado, sem aviso prévio e sem possibilidade de recurso. Use apenas se você compreender e aceitar este risco.",
+          "RISK_CHECKBOX": "Eu li e compreendo o risco",
+          "CONNECT_BUTTON": "Conectar",
+          "CONNECTING": "Iniciando conexão…",
+          "SCAN_INSTRUCTIONS": "Abra o WhatsApp no telefone que deseja conectar, acesse Dispositivos conectados e escaneie este código.",
+          "WAITING_FOR_SCAN": "Aguardando leitura do código…",
+          "CONNECTED": "WhatsApp conectado com sucesso.",
+          "ERROR": "Não foi possível iniciar a conexão. Por favor, tente novamente."
         },
         "SELECT_PROVIDER": {
           "TITLE": "Selecione seu provedor de API",

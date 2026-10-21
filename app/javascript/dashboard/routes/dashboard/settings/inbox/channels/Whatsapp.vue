@@ -7,6 +7,7 @@ import ThreeSixtyDialogWhatsapp from './360DialogWhatsapp.vue';
 import CloudWhatsapp from './CloudWhatsapp.vue';
 import WhatsappManualSetup from './WhatsappManualSetup.vue';
 import WhatsappEmbeddedSignup from './WhatsappEmbeddedSignup.vue';
+import WhatsappQrUnofficial from './WhatsappQrUnofficial.vue';
 import WhatsappAccessRequestDialog from '../components/WhatsappAccessRequestDialog.vue';
 import ChannelSelector from 'dashboard/components/ChannelSelector.vue';
 import Banner from 'dashboard/components-next/banner/Banner.vue';
@@ -33,6 +34,7 @@ const PROVIDER_TYPES = {
   WHATSAPP_EMBEDDED: 'whatsapp_embedded',
   WHATSAPP_MANUAL: 'whatsapp_manual',
   THREE_SIXTY_DIALOG: '360dialog',
+  QR_UNOFFICIAL: 'qr_unofficial',
 };
 
 const hasWhatsappAppId = computed(() => {
@@ -89,6 +91,12 @@ const availableProviders = computed(() => [
     title: t('INBOX_MGMT.ADD.WHATSAPP.PROVIDERS.TWILIO'),
     description: t('INBOX_MGMT.ADD.WHATSAPP.PROVIDERS.TWILIO_DESC'),
     icon: 'i-woot-twilio',
+  },
+  {
+    key: PROVIDER_TYPES.QR_UNOFFICIAL,
+    title: t('INBOX_MGMT.ADD.WHATSAPP.PROVIDERS.QR_UNOFFICIAL'),
+    description: t('INBOX_MGMT.ADD.WHATSAPP.PROVIDERS.QR_UNOFFICIAL_DESC'),
+    icon: 'i-lucide-qr-code',
   },
 ]);
 
@@ -266,6 +274,9 @@ const requestEmbeddedSignupAccess = () => {
         />
         <ThreeSixtyDialogWhatsapp
           v-else-if="selectedProvider === PROVIDER_TYPES.THREE_SIXTY_DIALOG"
+        />
+        <WhatsappQrUnofficial
+          v-else-if="selectedProvider === PROVIDER_TYPES.QR_UNOFFICIAL"
         />
         <CloudWhatsapp v-else />
       </div>
