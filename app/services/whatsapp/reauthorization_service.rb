@@ -1,9 +1,10 @@
 class Whatsapp::ReauthorizationService
-  def initialize(account:, inbox_id:, phone_number_id:, waba_id:)
+  def initialize(account:, inbox_id:, phone_number_id:, waba_id:, shared_assets: nil)
     @account = account
     @inbox_id = inbox_id
     @phone_number_id = phone_number_id
     @waba_id = waba_id
+    @shared_assets = shared_assets
   end
 
   def perform(access_token, phone_info)
@@ -31,12 +32,14 @@ class Whatsapp::ReauthorizationService
     resolved_phone_number_id = @phone_number_id.presence || phone_info[:phone_number_id]
     channel.business_management_token = nil if current_config['business_account_id'] != @waba_id
 
-    channel.provider_config = current_config.merge(
+    updated_config = current_config.merge(
       'api_key' => access_token,
       'phone_number_id' => resolved_phone_number_id,
       'business_account_id' => @waba_id,
       'source' => 'embedded_signup'
     )
+    updated_config['shared_assets'] = @shared_assets if @shared_assets.present?
+    channel.provider_config = updated_config
     channel.save!
 
     # Update inbox name if business name changed

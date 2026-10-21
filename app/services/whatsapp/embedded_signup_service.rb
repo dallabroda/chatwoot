@@ -60,7 +60,8 @@ class Whatsapp::EmbeddedSignupService
         account: @account,
         inbox_id: @inbox_id,
         phone_number_id: @phone_number_id,
-        waba_id: @waba_id
+        waba_id: @waba_id,
+        shared_assets: @shared_assets
       ).perform(access_token, phone_info)
     else
       waba_info = { waba_id: @waba_id, business_name: phone_info[:business_name], shared_assets: @shared_assets }
