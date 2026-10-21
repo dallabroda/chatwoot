@@ -31,8 +31,25 @@ class Channel::Api < ApplicationRecord
   validate :ensure_valid_agent_reply_time_window
   validates :webhook_url, length: { maximum: Limits::URL_LENGTH_LIMIT }
 
+  after_destroy :cleanup_evolution_instance, if: :evolution_qr?
+
   def name
     'API'
+  end
+
+  def evolution_qr?
+    additional_attributes&.dig('connection_type') == 'evolution_qr'
+  end
+
+  private
+
+  def cleanup_evolution_instance
+    instance_name = additional_attributes&.dig('evolution_instance_name')
+    return if instance_name.blank?
+
+    Whatsapp::EvolutionConnectionService.new(self, instance_name).delete_instance
+  rescue StandardError => e
+    Rails.logger.error "[Evolution] Failed to delete instance #{instance_name} on channel destroy: #{e.message}"
   end
 
   private
