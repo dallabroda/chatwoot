@@ -16,6 +16,7 @@ import { getLoginRedirectURL, getSignupRoute } from 'v3/helpers/AuthHelper';
 import SimpleDivider from '../../components/Divider/SimpleDivider.vue';
 import FormInput from '../../components/Form/Input.vue';
 import GoogleOAuthButton from '../../components/GoogleOauth/Button.vue';
+import Auth0LoginButton from '../../components/Auth0Login/Button.vue';
 import Spinner from 'shared/components/Spinner.vue';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
 import NextButton from 'dashboard/components-next/button/Button.vue';
@@ -39,6 +40,7 @@ export default {
   components: {
     FormInput,
     GoogleOAuthButton,
+    Auth0LoginButton,
     Spinner,
     NextButton,
     SimpleDivider,
@@ -104,6 +106,11 @@ export default {
     ...mapGetters({ globalConfig: 'globalConfig/get' }),
     allowedLoginMethods() {
       return window.chatwootConfig.allowedLoginMethods || ['email'];
+    },
+    showAuth0Login() {
+      return Boolean(
+        window.chatwootConfig.auth0Domain && window.chatwootConfig.auth0ClientId
+      );
     },
     showGoogleOAuth() {
       return (
@@ -460,12 +467,17 @@ export default {
       v-else
       class="bg-white shadow sm:mx-auto mt-11 sm:w-full sm:max-w-lg dark:bg-n-solid-2 p-11 sm:shadow-lg sm:rounded-lg"
       :class="{
-        'mb-8 mt-15': !showGoogleOAuth,
+        'mb-8 mt-15': !showGoogleOAuth && !showAuth0Login,
         'animate-wiggle': loginApi.hasErrored,
       }"
     >
       <div v-if="!email">
         <div class="flex flex-col gap-4">
+          <Auth0LoginButton
+            v-if="showAuth0Login"
+            :redirect-url="redirectUrl"
+            :sso-account-id="ssoAccountId"
+          />
           <GoogleOAuthButton
             v-if="showGoogleOAuth"
             :redirect-url="redirectUrl"
@@ -486,7 +498,7 @@ export default {
             </router-link>
           </div>
           <SimpleDivider
-            v-if="showGoogleOAuth || showSamlLogin"
+            v-if="showAuth0Login || showGoogleOAuth || showSamlLogin"
             :label="$t('COMMON.OR')"
             class="uppercase"
           />

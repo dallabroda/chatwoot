@@ -16,6 +16,7 @@
       "UNAUTH": "Usuário ou senha incorretos. Por favor, tente novamente."
     },
     "OAUTH": {
+      "CREDTECH_LOGIN": "Entrar com CredTech",
       "GOOGLE_LOGIN": "Entrar com o Google",
       "BUSINESS_ACCOUNTS_ONLY": "Você não pode criar uma nova conta com um endereço de e-mail pessoal. Cadastre-se usando seu e-mail profissional.",
       "NO_ACCOUNT_FOUND": "Não encontramos uma conta para seu endereço de correio eletrônico.",
