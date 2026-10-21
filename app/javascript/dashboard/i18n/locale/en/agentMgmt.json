@@ -48,6 +48,11 @@
         "ERROR_MESSAGE": "Could not connect to Woot Server, Please try again later"
       }
     },
+    "RESEND_INVITE": {
+      "BUTTON_TEXT": "Resend invite",
+      "SUCCESS_MESSAGE": "Invite resent.",
+      "ERROR_MESSAGE": "Could not resend the invite."
+    },
     "DELETE": {
       "BUTTON_TEXT": "Delete",
       "API": {

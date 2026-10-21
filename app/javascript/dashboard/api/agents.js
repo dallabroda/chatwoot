@@ -12,6 +12,10 @@ class Agents extends ApiClient {
       emails,
     });
   }
+
+  resendConfirmation(id) {
+    return axios.post(`${this.url}/${id}/resend_confirmation`);
+  }
 }
 
 export default new Agents();

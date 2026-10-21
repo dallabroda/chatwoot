@@ -10,6 +10,8 @@ import {
   useMapGetter,
 } from 'dashboard/composables/store';
 
+import AgentsAPI from 'dashboard/api/agents';
+import { parseAPIErrorResponse } from 'dashboard/store/utils/api';
 import AddAgent from './AddAgent.vue';
 import EditAgent from './EditAgent.vue';
 import BaseSettingsHeader from '../components/BaseSettingsHeader.vue';
@@ -21,6 +23,7 @@ const store = useStore();
 const { t } = useI18n();
 
 const loading = ref({});
+const resending = ref({});
 const showAddPopup = ref(false);
 const showDeletePopup = ref(false);
 const showEditPopup = ref(false);
@@ -142,6 +145,21 @@ const confirmDeletion = () => {
   closeDeletePopup();
   deleteAgent(currentAgent.value.id);
 };
+
+const resendInvite = async agent => {
+  resending.value[agent.id] = true;
+  try {
+    await AgentsAPI.resendConfirmation(agent.id);
+    useAlert(t('AGENT_MGMT.RESEND_INVITE.SUCCESS_MESSAGE'));
+  } catch (error) {
+    useAlert(
+      parseAPIErrorResponse(error) ||
+        t('AGENT_MGMT.RESEND_INVITE.ERROR_MESSAGE')
+    );
+  } finally {
+    resending.value[agent.id] = false;
+  }
+};
 </script>
 
 <template>
@@ -254,6 +272,15 @@ const confirmDeletion = () => {
             </div>
           </div>
           <div class="flex justify-end gap-3">
+            <Button
+              v-if="!agent.confirmed"
+              v-tooltip.top="$t('AGENT_MGMT.RESEND_INVITE.BUTTON_TEXT')"
+              icon="i-lucide-send"
+              slate
+              sm
+              :is-loading="resending[agent.id]"
+              @click="resendInvite(agent)"
+            />
             <Button
               v-if="showEditAction(agent)"
               v-tooltip.top="$t('AGENT_MGMT.EDIT.BUTTON_TEXT')"

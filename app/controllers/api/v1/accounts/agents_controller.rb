@@ -33,6 +33,13 @@ class Api::V1::Accounts::AgentsController < Api::V1::Accounts::BaseController
     head :ok
   end
 
+  def resend_confirmation
+    return render json: { error: 'Agent is already confirmed' }, status: :unprocessable_entity if @agent.confirmed?
+
+    @agent.send_confirmation_instructions
+    head :ok
+  end
+
   def bulk_create
     emails = params[:emails]
 

@@ -48,6 +48,11 @@
         "ERROR_MESSAGE": "Não foi possível conectar ao servidor Woot, por favor tente novamente mais tarde"
       }
     },
+    "RESEND_INVITE": {
+      "BUTTON_TEXT": "Reenviar convite",
+      "SUCCESS_MESSAGE": "Convite reenviado.",
+      "ERROR_MESSAGE": "Não foi possível reenviar o convite."
+    },
     "DELETE": {
       "BUTTON_TEXT": "Excluir",
       "API": {
