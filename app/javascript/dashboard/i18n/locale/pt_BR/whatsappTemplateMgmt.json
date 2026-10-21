@@ -1,5 +1,33 @@
 {
   "WHATSAPP_TEMPLATE_MGMT": {
+    "CREATE": {
+      "OPEN": "Criar template",
+      "TITLE": "Criar template de WhatsApp",
+      "DESCRIPTION": "O template é enviado para análise da Meta. A aprovação pode levar de alguns minutos a 24 horas.",
+      "SUBMIT": "Enviar para análise",
+      "INBOX": "Número",
+      "CATEGORY": "Categoria",
+      "LANGUAGE": "Idioma",
+      "NAME": "Nome",
+      "NAME_PLACEHOLDER": "ex: lembrete_pagamento",
+      "NAME_ERROR": "Use apenas letras minúsculas, números e sublinhado.",
+      "HEADER": "Cabeçalho",
+      "OPTIONAL": "Opcional",
+      "BODY": "Corpo",
+      "BODY_PLACEHOLDER": "Olá {first}, seu pedido {second} está pronto.",
+      "EXAMPLES": "Exemplos para as variáveis (exigidos pela Meta)",
+      "FOOTER": "Rodapé",
+      "BUTTONS": "Botões",
+      "ADD_BUTTON": "Adicionar botão",
+      "BUTTON_TEXT": "Texto do botão",
+      "BUTTON_TYPES": {
+        "QUICK_REPLY": "Resposta rápida",
+        "URL": "Link",
+        "PHONE_NUMBER": "Ligar"
+      },
+      "SUCCESS": "Template enviado para análise da Meta.",
+      "ERROR": "Não foi possível criar o template."
+    },
     "TITLE": "Modelos",
     "DESCRIPTION": "Visualize os modelos de mensagens sincronizados das suas caixas de entrada do WhatsApp. Para criar ou editar um modelo, gerencie-o com seu provedor.",
     "COUNT": "{n} modelo | {n} modelos",

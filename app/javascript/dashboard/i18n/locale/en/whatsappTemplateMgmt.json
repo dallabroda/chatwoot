@@ -1,5 +1,33 @@
 {
   "WHATSAPP_TEMPLATE_MGMT": {
+    "CREATE": {
+      "OPEN": "Create template",
+      "TITLE": "Create WhatsApp template",
+      "DESCRIPTION": "The template is sent to Meta for review. Approval can take from a few minutes to 24 hours.",
+      "SUBMIT": "Submit for review",
+      "INBOX": "Number",
+      "CATEGORY": "Category",
+      "LANGUAGE": "Language",
+      "NAME": "Name",
+      "NAME_PLACEHOLDER": "e.g. payment_reminder",
+      "NAME_ERROR": "Use only lowercase letters, numbers and underscores.",
+      "HEADER": "Header",
+      "OPTIONAL": "Optional",
+      "BODY": "Body",
+      "BODY_PLACEHOLDER": "Hi {first}, your order {second} is ready.",
+      "EXAMPLES": "Example values for the variables (required by Meta)",
+      "FOOTER": "Footer",
+      "BUTTONS": "Buttons",
+      "ADD_BUTTON": "Add button",
+      "BUTTON_TEXT": "Button text",
+      "BUTTON_TYPES": {
+        "QUICK_REPLY": "Quick reply",
+        "URL": "Link",
+        "PHONE_NUMBER": "Call"
+      },
+      "SUCCESS": "Template submitted to Meta for review.",
+      "ERROR": "Could not create the template."
+    },
     "TITLE": "Templates",
     "DESCRIPTION": "View the message templates synced from your WhatsApp inboxes. To create or edit a template, manage it with your provider.",
     "COUNT": "{n} template | {n} templates",

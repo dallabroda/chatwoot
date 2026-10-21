@@ -14,6 +14,7 @@ import DropdownMenu from 'dashboard/components-next/dropdown-menu/DropdownMenu.v
 import Icon from 'dashboard/components-next/icon/Icon.vue';
 import BaseSettingsHeader from '../components/BaseSettingsHeader.vue';
 import SettingsLayout from '../SettingsLayout.vue';
+import CreateTemplateDialog from './CreateTemplateDialog.vue';
 import TemplateCard from './TemplateCard.vue';
 import TemplatePreviewDrawer from './TemplatePreviewDrawer.vue';
 import {
@@ -84,6 +85,12 @@ const whatsappInboxes = computed(() =>
         inbox.medium === TWILIO_CHANNEL_MEDIUM.WHATSAPP)
   )
 );
+
+// Template creation goes through the Cloud API, so only those inboxes qualify
+const cloudApiInboxes = computed(() =>
+  whatsappInboxes.value.filter(inbox => inbox.provider === 'whatsapp_cloud')
+);
+const createDialogRef = ref(null);
 
 const inboxOptions = computed(() => [
   {
@@ -392,6 +399,13 @@ onDeactivated(abortTemplateRequest);
         </template>
         <template #actions>
           <Button
+            v-if="cloudApiInboxes.length"
+            :label="$t('WHATSAPP_TEMPLATE_MGMT.CREATE.OPEN')"
+            icon="i-lucide-plus"
+            size="sm"
+            @click="createDialogRef.open()"
+          />
+          <Button
             :label="$t('WHATSAPP_TEMPLATE_MGMT.SYNC_TEMPLATES')"
             icon="i-lucide-refresh-cw"
             color="slate"
@@ -425,5 +439,10 @@ onDeactivated(abortTemplateRequest);
     </template>
 
     <TemplatePreviewDrawer ref="previewPanelRef" :template="selectedTemplate" />
+    <CreateTemplateDialog
+      ref="createDialogRef"
+      :inboxes="cloudApiInboxes"
+      @created="fetchTemplates"
+    />
   </SettingsLayout>
 </template>
