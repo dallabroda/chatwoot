@@ -80,11 +80,19 @@ onMounted(async () => {
           {{ t('PHONE_NUMBERS_PAGE.DESCRIPTION') }}
         </p>
       </div>
-      <Button
-        icon="i-lucide-plus"
-        :label="t('PHONE_NUMBERS_PAGE.ADD_NUMBER')"
-        @click="addNumber"
-      />
+      <div class="flex items-center gap-2">
+        <Button
+          icon="i-lucide-webhook"
+          :label="t('PHONE_NUMBERS_PAGE.WEBHOOKS')"
+          color="slate"
+          @click="router.push({ name: 'phone_numbers_webhooks' })"
+        />
+        <Button
+          icon="i-lucide-plus"
+          :label="t('PHONE_NUMBERS_PAGE.ADD_NUMBER')"
+          @click="addNumber"
+        />
+      </div>
     </header>
 
     <main class="flex-1 px-6 py-4 overflow-y-auto">

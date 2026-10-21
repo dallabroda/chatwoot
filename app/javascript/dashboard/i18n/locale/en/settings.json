@@ -315,10 +315,19 @@
       "NEW_INBOX": "Add Inbox"
     }
   },
+  "WEBHOOK_EVENTS_PAGE": {
+    "HEADER": "Webhooks",
+    "DESCRIPTION": "Last 100 events received from WhatsApp for this account.",
+    "AUTO_REFRESH": "Auto refresh",
+    "BACK": "Phone numbers",
+    "EMPTY_STATE": "No webhook received yet.",
+    "FETCH_ERROR": "Could not load the webhooks."
+  },
   "PHONE_NUMBERS_PAGE": {
     "HEADER": "Phone numbers",
     "DESCRIPTION": "WhatsApp numbers connected to this account.",
     "ADD_NUMBER": "Add number",
+    "WEBHOOKS": "Webhooks",
     "EMPTY_STATE": "No WhatsApp number connected yet.",
     "OPEN_CONVERSATIONS": "Conversations",
     "SETTINGS": "Settings",

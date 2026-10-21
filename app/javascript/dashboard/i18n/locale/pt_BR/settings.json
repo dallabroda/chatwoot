@@ -315,10 +315,19 @@
       "NEW_INBOX": "Adicionar Caixa de Entrada"
     }
   },
+  "WEBHOOK_EVENTS_PAGE": {
+    "HEADER": "Webhooks",
+    "DESCRIPTION": "Últimos 100 eventos recebidos do WhatsApp nesta conta.",
+    "AUTO_REFRESH": "Atualizar automaticamente",
+    "BACK": "Números de telefone",
+    "EMPTY_STATE": "Nenhum webhook recebido ainda.",
+    "FETCH_ERROR": "Não foi possível carregar os webhooks."
+  },
   "PHONE_NUMBERS_PAGE": {
     "HEADER": "Números de telefone",
     "DESCRIPTION": "Números de WhatsApp conectados a esta conta.",
     "ADD_NUMBER": "Adicionar número",
+    "WEBHOOKS": "Webhooks",
     "EMPTY_STATE": "Nenhum número de WhatsApp conectado ainda.",
     "OPEN_CONVERSATIONS": "Conversas",
     "SETTINGS": "Configurações",

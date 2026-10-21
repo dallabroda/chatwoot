@@ -93,6 +93,10 @@ module Redis::Alfred
       $alfred.with { |conn| conn.lpush(key, values) }
     end
 
+    def ltrim(key, start_index, end_index)
+      $alfred.with { |conn| conn.ltrim(key, start_index, end_index) }
+    end
+
     def rpoplpush(source, destination)
       $alfred.with { |conn| conn.rpoplpush(source, destination) }
     end
