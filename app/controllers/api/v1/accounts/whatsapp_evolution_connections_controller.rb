@@ -8,6 +8,10 @@ class Api::V1::Accounts::WhatsappEvolutionConnectionsController < Api::V1::Accou
 
   def create
     authorize Inbox.new(account: Current.account), :create?
+    unless Current.account.can_add_whatsapp_number?
+      return render json: { error: 'Limite de conexões WhatsApp atingido. Faça upgrade do seu plano na aba Meu Plano para adicionar mais números.' },
+                    status: :payment_required
+    end
     return render_invalid_param(:risk_accepted) unless ActiveModel::Type::Boolean.new.cast(params[:risk_accepted])
     return render_invalid_param(:name) if params[:name].blank?
 

@@ -8,6 +8,7 @@ class Whatsapp::ChannelCreationService
 
   def perform
     validate_parameters!
+    validate_subscription_limit!
 
     existing_channel = find_existing_channel
     raise I18n.t('errors.whatsapp.phone_number_already_exists', phone_number: existing_channel.phone_number) if existing_channel
@@ -22,6 +23,12 @@ class Whatsapp::ChannelCreationService
     raise ArgumentError, 'WABA info is required' if @waba_info.blank?
     raise ArgumentError, 'Phone info is required' if @phone_info.blank?
     raise ArgumentError, 'Access token is required' if @access_token.blank?
+  end
+
+  def validate_subscription_limit!
+    return if @account.can_add_whatsapp_number?
+
+    raise StandardError, 'Limite de conexões WhatsApp atingido. Faça upgrade do seu plano na aba Meu Plano para adicionar mais números.'
   end
 
   def find_existing_channel

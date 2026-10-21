@@ -31,6 +31,11 @@ class Api::V1::Accounts::InboxesController < Api::V1::Accounts::BaseController
   end
 
   def create
+    if permitted_params.dig(:channel, :type) == 'whatsapp' && !Current.account.can_add_whatsapp_number?
+      return render json: { error: 'Limite de conexões WhatsApp atingido. Faça upgrade do seu plano na aba Meu Plano para adicionar mais números.' },
+                    status: :payment_required
+    end
+
     ActiveRecord::Base.transaction do
       channel = create_channel
       @inbox = Current.account.inboxes.build(

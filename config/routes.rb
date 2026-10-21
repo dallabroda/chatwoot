@@ -331,6 +331,12 @@ Rails.application.routes.draw do
           resources :whatsapp_evolution_connections, only: [:create, :destroy] do
             get :qr, on: :member
           end
+          resource :custom_billing, only: [:show], controller: 'custom_billing' do
+            post :subscribe
+            post :update_slots
+            post :update_card
+            get :invoices
+          end
           resource :branded_email_layout, only: [:show, :update]
           resources :inboxes, only: [:index, :show, :create, :update, :destroy] do
             get :assignable_agents, on: :member
@@ -731,6 +737,7 @@ Rails.application.routes.draw do
   post 'webhooks/telegram/:bot_token', to: 'webhooks/telegram#process_payload'
   post 'webhooks/sms/:phone_number', to: 'webhooks/sms#process_payload'
   post 'webhooks/evolution/:instance_name', to: 'webhooks/evolution#process_payload'
+  post 'webhooks/asaas', to: 'webhooks/asaas#process_payload'
   get 'webhooks/whatsapp/:phone_number', to: 'webhooks/whatsapp#verify'
   post 'webhooks/whatsapp/:phone_number', to: 'webhooks/whatsapp#process_payload'
   get 'webhooks/instagram', to: 'webhooks/instagram#verify'
