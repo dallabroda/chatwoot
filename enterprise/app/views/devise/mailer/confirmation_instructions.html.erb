@@ -7,82 +7,83 @@
   is_saml_account = account_user&.account&.saml_enabled?
   invited_user = inviter.present? && @resource.unconfirmed_email.blank?
 
-  eyebrow = 'Welcome'
-  heading = 'Confirm your email to get started'
-  intro_text =
-    "Welcome to #{brand_name}. We just need to verify your email address before you can start using your account."
-  supporting_text = 'This only takes a moment.'
-  action_text = 'Confirm my account'
+  eyebrow = t('devise_mailer.confirmation.welcome_eyebrow')
+  heading = t('devise_mailer.confirmation.welcome_heading')
+  intro_text = t('devise_mailer.confirmation.welcome_intro', brand_name: brand_name)
+  supporting_text = t('devise_mailer.confirmation.welcome_supporting')
+  action_text = t('devise_mailer.confirmation.welcome_action')
   confirmation_params = { confirmation_token: @token }
   confirmation_params[:route_url] = params[:redirect_url] if params[:redirect_url].present?
   action_url = frontend_url('auth/confirmation', **confirmation_params)
   info_title = nil
   info_text = nil
   detail_rows = []
-  detail_rows << ['New email', @resource.unconfirmed_email] if @resource.unconfirmed_email.present?
+  detail_rows << [t('devise_mailer.confirmation.new_email_label'), @resource.unconfirmed_email] if @resource.unconfirmed_email.present?
 
   if @resource.unconfirmed_email.present?
-    eyebrow = 'Email update'
-    heading = 'Confirm your new email address'
-    intro_text = "We received a request to update the email address on your #{brand_name} account."
-    supporting_text = 'Confirm the new address below to finish the change.'
-    action_text = 'Confirm email address'
+    eyebrow = t('devise_mailer.confirmation.update_eyebrow')
+    heading = t('devise_mailer.confirmation.update_heading')
+    intro_text = t('devise_mailer.confirmation.update_intro', brand_name: brand_name)
+    supporting_text = t('devise_mailer.confirmation.update_supporting')
+    action_text = t('devise_mailer.confirmation.update_action')
   elsif @resource.confirmed?
-    eyebrow = 'Account ready'
+    eyebrow = t('devise_mailer.confirmation.ready_eyebrow')
 
     if is_saml_account
-      heading = 'Your access is ready'
-      intro_text = "Your #{brand_name} access is already set up."
-      supporting_text = "Use your organization's Single Sign-On (SSO) portal to access #{brand_name}."
+      heading = t('devise_mailer.confirmation.saml_ready_heading')
+      intro_text = t('devise_mailer.confirmation.saml_ready_intro', brand_name: brand_name)
+      supporting_text = t('devise_mailer.confirmation.saml_ready_supporting', brand_name: brand_name)
       action_text = nil
       action_url = nil
-      info_title = "Sign in with your organization's SSO"
-      info_text =
-        "You won't need a separate password for #{brand_name}. Start from your company identity provider portal."
+      info_title = t('devise_mailer.confirmation.saml_ready_info_title')
+      info_text = t('devise_mailer.confirmation.saml_ready_info_text', brand_name: brand_name)
       detail_rows = []
-      detail_rows << ['Workspace', account_name] if account_name.present?
-      detail_rows << ['Sign-in method', 'Single Sign-On (SSO)']
+      detail_rows << [t('devise_mailer.confirmation.workspace_label'), account_name] if account_name.present?
+      detail_rows << [t('devise_mailer.confirmation.sign_in_method_label'), t('devise_mailer.confirmation.sso_method')]
     else
-      heading = 'Your account is ready'
-      intro_text = "Your #{brand_name} account is already active."
-      supporting_text = 'Use the button below to sign in and continue where you left off.'
-      action_text = 'Open my account'
+      heading = t('devise_mailer.confirmation.ready_heading')
+      intro_text = t('devise_mailer.confirmation.ready_intro', brand_name: brand_name)
+      supporting_text = t('devise_mailer.confirmation.ready_supporting')
+      action_text = t('devise_mailer.confirmation.ready_action')
       action_url = frontend_url('auth/sign_in')
       detail_rows = []
     end
   elsif invited_user
-    eyebrow = 'Workspace invitation'
-    heading = account_name.present? ? "You're invited to join #{account_name}" : "You're invited to try #{brand_name}"
+    eyebrow = t('devise_mailer.confirmation.invite_eyebrow')
+    heading = if account_name.present?
+      t('devise_mailer.confirmation.invite_heading_account', account_name: account_name)
+    else
+      t('devise_mailer.confirmation.invite_heading', brand_name: brand_name)
+    end
 
     if is_saml_account
       intro_text = if account_name.present?
-        "#{inviter.name} invited you to access the #{account_name} workspace on #{brand_name}."
+        t('devise_mailer.confirmation.saml_invite_intro_account', inviter: inviter.name, account_name: account_name, brand_name: brand_name)
       else
-        "#{inviter.name} invited you to access #{brand_name}."
+        t('devise_mailer.confirmation.saml_invite_intro', inviter: inviter.name, brand_name: brand_name)
       end
-      supporting_text =
-        "Your organization uses Single Sign-On (SSO), so you won't need to create a separate password."
+      supporting_text = t('devise_mailer.confirmation.saml_invite_supporting')
       action_text = nil
       action_url = nil
-      info_title = "Use your organization's SSO portal"
-      info_text = "Continue from your company identity provider portal to access #{brand_name}."
-      detail_rows = [['Invited by', inviter.name]]
-      detail_rows << ['Workspace', account_name] if account_name.present?
-      detail_rows << ['Sign-in method', 'Single Sign-On (SSO)']
+      info_title = t('devise_mailer.confirmation.saml_invite_info_title')
+      info_text = t('devise_mailer.confirmation.saml_invite_info_text', brand_name: brand_name)
+      detail_rows = [[t('devise_mailer.confirmation.invited_by_label'), inviter.name]]
+      detail_rows << [t('devise_mailer.confirmation.workspace_label'), account_name] if account_name.present?
+      detail_rows << [t('devise_mailer.confirmation.sign_in_method_label'), t('devise_mailer.confirmation.sso_method')]
     else
       intro_text = if account_name.present?
-        "#{inviter.name} invited you to join the #{account_name} workspace on #{brand_name}."
+        t('devise_mailer.confirmation.invite_intro_account', inviter: inviter.name, account_name: account_name, brand_name: brand_name)
       else
-        "#{inviter.name} invited you to try #{brand_name}."
+        t('devise_mailer.confirmation.invite_intro', inviter: inviter.name, brand_name: brand_name)
       end
-      supporting_text = 'Create your account to start collaborating with your team.'
-      action_text = 'Accept invitation'
+      supporting_text = t('devise_mailer.confirmation.invite_supporting')
+      action_text = t('devise_mailer.confirmation.invite_action')
       reset_password_params = { reset_password_token: @resource.send(:set_reset_password_token) }
       reset_password_params[:route_url] = params[:redirect_url] if params[:redirect_url].present?
       reset_password_params[:sso_account_id] = params[:sso_account_id] if params[:sso_account_id].present?
       action_url = frontend_url('auth/password/edit', **reset_password_params)
-      detail_rows = [['Invited by', inviter.name]]
-      detail_rows << ['Workspace', account_name] if account_name.present?
+      detail_rows = [[t('devise_mailer.confirmation.invited_by_label'), inviter.name]]
+      detail_rows << [t('devise_mailer.confirmation.workspace_label'), account_name] if account_name.present?
     end
   end
 %>

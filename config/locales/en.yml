@@ -1146,3 +1146,15 @@ en:
       invite_action: 'Accept invitation'
       invited_by_label: 'Invited by'
       workspace_label: 'Workspace'
+      sign_in_method_label: 'Sign-in method'
+      sso_method: 'Single Sign-On (SSO)'
+      saml_ready_heading: 'Your access is ready'
+      saml_ready_intro: 'Your %{brand_name} access is already set up.'
+      saml_ready_supporting: "Use your organization's Single Sign-On (SSO) portal to access %{brand_name}."
+      saml_ready_info_title: "Sign in with your organization's SSO"
+      saml_ready_info_text: "You won't need a separate password for %{brand_name}. Start from your company identity provider portal."
+      saml_invite_intro_account: '%{inviter} invited you to access the %{account_name} workspace on %{brand_name}.'
+      saml_invite_intro: '%{inviter} invited you to access %{brand_name}.'
+      saml_invite_supporting: "Your organization uses Single Sign-On (SSO), so you won't need to create a separate password."
+      saml_invite_info_title: "Use your organization's SSO portal"
+      saml_invite_info_text: 'Continue from your company identity provider portal to access %{brand_name}.'
