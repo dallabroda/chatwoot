@@ -8,7 +8,7 @@ class Asaas::Client
 
   def base_url
     if @environment.to_s.downcase == 'production'
-      'https://api.asaas.com/api/v3'
+      'https://api.asaas.com/v3'
     else
       'https://sandbox.asaas.com/api/v3'
     end
