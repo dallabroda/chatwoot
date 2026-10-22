@@ -492,7 +492,9 @@
     "DOCS": "Read docs",
     "SECURITY": "Security",
     "CAPTAIN_AI": "Captain",
-    "CONVERSATION_WORKFLOW": "Conversation Workflow"
+    "CONVERSATION_WORKFLOW": "Conversation Workflow",
+    "SUPPORT": "Talk to support",
+    "SUPPORT_MESSAGE": "Hi! I am {name} ({email}) from {account} (account #{id}) and I need help with Cred Chat."
   },
   "DATA_IMPORTS": {
     "HEADER": "Data",

@@ -492,7 +492,9 @@
     "DOCS": "Ler documentos",
     "SECURITY": "Segurança",
     "CAPTAIN_AI": "Captain",
-    "CONVERSATION_WORKFLOW": "Fluxo de Conversa"
+    "CONVERSATION_WORKFLOW": "Fluxo de Conversa",
+    "SUPPORT": "Falar com o suporte",
+    "SUPPORT_MESSAGE": "Olá! Sou {name} ({email}), da empresa {account} (conta #{id}), e preciso de ajuda com o Cred Chat."
   },
   "DATA_IMPORTS": {
     "HEADER": "Dados",
