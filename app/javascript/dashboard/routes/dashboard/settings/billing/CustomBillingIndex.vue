@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useAlert } from 'dashboard/composables';
 import CustomBillingAPI from 'dashboard/api/customBilling';
@@ -34,9 +34,41 @@ const emptyForm = () => ({
   cpf_cnpj: '',
   phone: '',
   postal_code: '',
+  province: '',
+  address: '',
   address_number: '',
+  address_complement: '',
 });
 const form = ref(emptyForm());
+
+// Postal code lookup (ViaCEP). Plain fetch on purpose: the app's axios instance carries auth headers.
+const postalCodeMessage = ref('');
+const postalCodeNotFound = ref(false);
+const lookupPostalCode = async postalCode => {
+  const cep = (postalCode || '').replace(/\D/g, '');
+  postalCodeMessage.value = '';
+  postalCodeNotFound.value = false;
+  if (cep.length !== 8) return;
+  try {
+    const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`, {
+      credentials: 'omit',
+    });
+    const data = await response.json();
+    if (data.erro) {
+      postalCodeNotFound.value = true;
+      postalCodeMessage.value = t('CUSTOM_BILLING.MODAL.POSTAL_CODE_NOT_FOUND');
+      return;
+    }
+    if (data.logradouro) form.value.address = data.logradouro;
+    if (data.bairro) form.value.province = data.bairro;
+    postalCodeMessage.value = t('CUSTOM_BILLING.MODAL.CITY', {
+      city: `${data.localidade} - ${data.uf}`,
+    });
+  } catch {
+    postalCodeMessage.value = '';
+  }
+};
+watch(() => form.value.postal_code, lookupPostalCode);
 
 const intlLocale = computed(() => locale.value.replace('_', '-'));
 const formatMoney = cents =>
@@ -179,7 +211,10 @@ const submitCard = async () => {
           cpf_cnpj: form.value.cpf_cnpj,
           phone: form.value.phone,
           postal_code: form.value.postal_code,
+          province: form.value.province,
+          address: form.value.address,
           address_number: form.value.address_number,
+          address_complement: form.value.address_complement,
         },
       });
       useAlert(t('CUSTOM_BILLING.MODAL.SUBSCRIBE_SUCCESS'));
@@ -564,10 +599,25 @@ onMounted(async () => {
             <Input
               v-model="form.postal_code"
               :label="t('CUSTOM_BILLING.MODAL.POSTAL_CODE')"
+              :message="postalCodeMessage"
+              :message-type="postalCodeNotFound ? 'error' : 'info'"
+            />
+            <Input
+              v-model="form.province"
+              :label="t('CUSTOM_BILLING.MODAL.PROVINCE')"
+            />
+            <Input
+              v-model="form.address"
+              class="col-span-2"
+              :label="t('CUSTOM_BILLING.MODAL.STREET')"
             />
             <Input
               v-model="form.address_number"
               :label="t('CUSTOM_BILLING.MODAL.ADDRESS_NUMBER')"
+            />
+            <Input
+              v-model="form.address_complement"
+              :label="t('CUSTOM_BILLING.MODAL.COMPLEMENT')"
             />
           </div>
         </template>

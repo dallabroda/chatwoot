@@ -36,8 +36,9 @@ class Asaas::SubscriptionService
         cpfCnpj: holder_params[:cpf_cnpj].to_s.gsub(/\D/, ''),
         postalCode: holder_params[:postal_code].to_s.gsub(/\D/, ''),
         addressNumber: holder_params[:address_number] || '1',
+        addressComplement: holder_params[:address_complement].presence,
         phone: holder_params[:phone].to_s.gsub(/\D/, '')
-      }
+      }.compact
     }
 
     response = client.post('/subscriptions', subscription_payload)
@@ -132,8 +133,13 @@ class Asaas::SubscriptionService
       email: holder_params[:email],
       cpfCnpj: holder_params[:cpf_cnpj].to_s.gsub(/\D/, ''),
       phone: holder_params[:phone].to_s.gsub(/\D/, ''),
+      postalCode: holder_params[:postal_code].to_s.gsub(/\D/, ''),
+      address: holder_params[:address].presence,
+      addressNumber: holder_params[:address_number].presence,
+      complement: holder_params[:address_complement].presence,
+      province: holder_params[:province].presence,
       externalReference: "chatwoot_account_#{account.id}"
-    }
+    }.compact
 
     response = client.post('/customers', customer_payload)
     response['id']

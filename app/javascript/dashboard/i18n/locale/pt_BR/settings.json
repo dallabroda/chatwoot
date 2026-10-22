@@ -1268,7 +1268,12 @@
       "SECURITY_NOTE": "Os dados do cartão vão direto ao Asaas, nosso processador de pagamentos. Guardamos só a bandeira e os 4 últimos dígitos.",
       "SUBSCRIBE_SUCCESS": "Assinatura criada.",
       "CARD_SUCCESS": "Cartão atualizado.",
-      "ERROR": "Não foi possível processar o cartão."
+      "ERROR": "Não foi possível processar o cartão.",
+      "STREET": "Rua",
+      "PROVINCE": "Bairro",
+      "COMPLEMENT": "Complemento (opcional)",
+      "CITY": "Cidade: {city}",
+      "POSTAL_CODE_NOT_FOUND": "CEP não encontrado."
     }
   }
 }

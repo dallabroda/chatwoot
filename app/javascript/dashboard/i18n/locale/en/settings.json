@@ -1268,7 +1268,12 @@
       "SECURITY_NOTE": "Card details go straight to Asaas, our payment processor. We only keep the brand and the last 4 digits.",
       "SUBSCRIBE_SUCCESS": "Subscription created.",
       "CARD_SUCCESS": "Card updated.",
-      "ERROR": "Could not process the card."
+      "ERROR": "Could not process the card.",
+      "STREET": "Street",
+      "PROVINCE": "Neighborhood",
+      "COMPLEMENT": "Complement (optional)",
+      "CITY": "City: {city}",
+      "POSTAL_CODE_NOT_FOUND": "Postal code not found."
     }
   }
 }
