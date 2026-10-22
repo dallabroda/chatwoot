@@ -370,18 +370,6 @@ const reportRoutes = computed(() => newReportRoutes());
 const menuItems = computed(() => {
   return [
     {
-      name: 'Meta Assets',
-      label: t('SIDEBAR.META_ASSETS'),
-      icon: 'i-lucide-boxes',
-      children: META_ASSET_TYPES.map(({ type, routeName, icon }) => ({
-        name: `Meta Assets ${type}`,
-        label: metaAssetLabels(t)[type],
-        icon,
-        to: accountScopedRoute(routeName),
-        activeOn: [routeName],
-      })),
-    },
-    {
       name: 'Conversation',
       label: t('SIDEBAR.CONVERSATIONS'),
       icon: 'i-lucide-message-circle',
@@ -687,6 +675,18 @@ const menuItems = computed(() => {
           }),
         },
       ],
+    },
+    {
+      name: 'Meta Assets',
+      label: t('SIDEBAR.META_ASSETS'),
+      icon: 'i-lucide-boxes',
+      children: META_ASSET_TYPES.map(({ type, routeName, icon }) => ({
+        name: `Meta Assets ${type}`,
+        label: metaAssetLabels(t)[type],
+        icon,
+        to: accountScopedRoute(routeName),
+        activeOn: [routeName],
+      })),
     },
     {
       name: 'Settings',
