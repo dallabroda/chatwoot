@@ -376,7 +376,7 @@ onDeactivated(abortTemplateRequest);
           <div
             v-if="hasTemplates"
             v-on-click-outside="closeFilterMenu"
-            class="flex items-center gap-2"
+            class="flex items-center gap-2 flex-wrap"
           >
             <div v-for="menu in filterMenus" :key="menu.key" class="relative">
               <Button

@@ -90,11 +90,11 @@ const helpURL = getHelpUrlForFeature(props.featureName);
   </div>
   <div
     v-if="searchPlaceholder || slots.actions || slots.tabs"
-    class="gap-3 flex flex-wrap sm:flex-nowrap justify-between sm:mt-4 min-w-0"
+    class="gap-3 flex flex-wrap justify-between items-center sm:mt-4 min-w-0 w-full"
   >
     <div
       v-if="slots.tabs || searchPlaceholder"
-      class="flex items-center gap-3 min-w-0"
+      class="flex items-center gap-3 flex-wrap min-w-0"
       :class="{
         'hidden sm:flex': !slots.tabs,
       }"
@@ -104,7 +104,7 @@ const helpURL = getHelpUrlForFeature(props.featureName);
         v-if="searchPlaceholder"
         v-model="searchQuery"
         :placeholder="searchPlaceholder"
-        class="group w-56 min-w-0 hidden sm:flex [&>input]:ltr:!pl-8 [&>input]:rtl:!pr-8 [&>input]:!rounded-[0.625rem]"
+        class="group w-48 lg:w-56 shrink-0 hidden sm:flex [&>input]:ltr:!pl-8 [&>input]:rtl:!pr-8 [&>input]:!rounded-[0.625rem]"
         size="sm"
         type="search"
       >
