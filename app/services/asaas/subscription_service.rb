@@ -32,7 +32,7 @@ class Asaas::SubscriptionService
       },
       creditCardHolderInfo: {
         name: holder_params[:name] || card_params[:holder_name],
-        email: holder_params[:email] || account.support_email,
+        email: holder_params[:email],
         cpfCnpj: holder_params[:cpf_cnpj].to_s.gsub(/\D/, ''),
         postalCode: holder_params[:postal_code].to_s.gsub(/\D/, ''),
         addressNumber: holder_params[:address_number] || '1',
@@ -129,7 +129,7 @@ class Asaas::SubscriptionService
 
     customer_payload = {
       name: holder_params[:name] || account.name,
-      email: holder_params[:email] || account.support_email,
+      email: holder_params[:email],
       cpfCnpj: holder_params[:cpf_cnpj].to_s.gsub(/\D/, ''),
       phone: holder_params[:phone].to_s.gsub(/\D/, ''),
       externalReference: "chatwoot_account_#{account.id}"

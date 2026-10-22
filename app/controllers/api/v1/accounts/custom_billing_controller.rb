@@ -77,8 +77,11 @@ class Api::V1::Accounts::CustomBillingController < Api::V1::Accounts::BaseContro
     params.require(:card).permit(:holder_name, :number, :expiry_month, :expiry_year, :ccv)
   end
 
+  # Asaas needs a bare address; the account support email can carry a display name ("CredTech <x@y>").
   def holder_params
-    params.require(:holder).permit(:name, :email, :cpf_cnpj, :postal_code, :address_number, :phone)
+    holder = params.require(:holder).permit(:name, :email, :cpf_cnpj, :postal_code, :address_number, :phone)
+    holder[:email] = Current.user.email if holder[:email].blank?
+    holder
   end
 
   def render_asaas_error(error)
