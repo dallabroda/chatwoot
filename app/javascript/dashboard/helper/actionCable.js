@@ -541,6 +541,8 @@ class ActionCableConnector extends BaseActionCableConnector {
   // eslint-disable-next-line class-methods-use-this
   onWhatsappQrUpdated = data => {
     emitter.emit(BUS_EVENTS.WHATSAPP_QR_UPDATED, data);
+    // Connection badges and the disconnected banner read the inbox list
+    if (data?.connection_state) this.app.$store.dispatch('inboxes/get');
   };
 }
 

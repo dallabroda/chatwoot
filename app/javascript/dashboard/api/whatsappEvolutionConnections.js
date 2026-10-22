@@ -10,6 +10,10 @@ class WhatsappEvolutionConnectionsAPI extends ApiClient {
   qr(inboxId) {
     return axios.get(`${this.url}/${inboxId}/qr`);
   }
+
+  status(inboxId) {
+    return axios.get(`${this.url}/${inboxId}/status`);
+  }
 }
 
 export default new WhatsappEvolutionConnectionsAPI();

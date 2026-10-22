@@ -1663,6 +1663,23 @@
       "INSTAGRAM": "Instagram",
       "TIKTOK": "TikTok",
       "VOICE": "Voz"
+    },
+    "QR_CONNECTION": {
+      "STATUS": {
+        "CONNECTED": "Conectado",
+        "DISCONNECTED": "Desconectado",
+        "QR_PENDING": "Aguardando leitura do QR"
+      },
+      "STATUS_LABEL": "Conexão do WhatsApp",
+      "RECONNECT_BUTTON": "Reconectar (novo QR code)",
+      "DIALOG_TITLE": "Reconectar WhatsApp",
+      "SCAN_INSTRUCTIONS": "No celular deste número, abra o WhatsApp → Aparelhos conectados → Conectar aparelho e escaneie o código. O histórico de conversas é mantido.",
+      "WAITING_FOR_SCAN": "Aguardando leitura…",
+      "CONNECTED_SUCCESS": "WhatsApp conectado.",
+      "ERROR": "Não foi possível gerar um novo QR code. Tente novamente.",
+      "CLOSE": "Fechar",
+      "DISCONNECTED_BANNER": "Este WhatsApp (QR code) está desconectado: as mensagens não estão sendo enviadas nem recebidas.",
+      "DISCONNECTED_BANNER_AGENT": "Este WhatsApp (QR code) está desconectado: as mensagens não estão sendo enviadas nem recebidas. Peça a um administrador para reconectar."
     }
   }
 }

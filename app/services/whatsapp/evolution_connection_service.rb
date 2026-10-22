@@ -46,6 +46,11 @@ class Whatsapp::EvolutionConnectionService
     get("/instance/connect/#{@instance_name}")
   end
 
+  # Raw Evolution/Baileys state: 'open', 'connecting' or 'close'
+  def connection_state
+    get("/instance/connectionState/#{@instance_name}").dig('instance', 'state')
+  end
+
   def delete_instance
     delete("/instance/delete/#{@instance_name}")
   end
@@ -69,7 +74,7 @@ class Whatsapp::EvolutionConnectionService
   end
 
   def request(method, path, body = nil)
-    options = { headers: headers }
+    options = { headers: headers, timeout: 15 }
     options[:body] = body.to_json if body
     response = HTTParty.public_send(method, "#{base_url}#{path}", options)
     raise Whatsapp::EvolutionApiError.from_response(response) unless response.success?

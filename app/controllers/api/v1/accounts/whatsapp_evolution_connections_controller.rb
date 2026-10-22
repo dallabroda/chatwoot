@@ -3,7 +3,7 @@
 # nature of this connection method must be explicitly accepted by the admin
 # before any instance is created — enforced here, not just in the UI.
 class Api::V1::Accounts::WhatsappEvolutionConnectionsController < Api::V1::Accounts::BaseController
-  before_action :fetch_inbox, only: [:qr, :destroy]
+  before_action :fetch_inbox, only: [:qr, :status, :destroy]
   rescue_from Whatsapp::EvolutionApiError, with: :render_evolution_error
 
   def create
@@ -50,10 +50,26 @@ class Api::V1::Accounts::WhatsappEvolutionConnectionsController < Api::V1::Accou
     }
   end
 
+  # Reconnects the same inbox (history is kept): a fresh QR from the existing session, or a brand-new
+  # Evolution instance under the same name when the old one no longer exists.
   def qr
-    service = Whatsapp::EvolutionConnectionService.new(@inbox.channel, evolution_instance_name)
-    response = service.connect
-    render json: { qr_code: response['base64'] || response.dig('qrcode', 'base64') }
+    service = evolution_service
+    response = begin
+      service.connect
+    rescue Whatsapp::EvolutionApiError
+      recreate_instance(service)
+    end
+
+    qr_code = response['base64'] || response.dig('qrcode', 'base64')
+    state = qr_code.present? ? 'qr_pending' : 'connected'
+    channel = @inbox.channel
+    channel.update!(additional_attributes: channel.additional_attributes.merge('connection_state' => state))
+    render json: { qr_code: qr_code, connection_state: state }
+  end
+
+  def status
+    @inbox.channel.apply_evolution_connection_state!(evolution_service.connection_state)
+    render json: { connection_state: @inbox.channel.reload.evolution_connection_state }
   end
 
   def destroy
@@ -75,6 +91,17 @@ class Api::V1::Accounts::WhatsappEvolutionConnectionsController < Api::V1::Accou
 
   def evolution_instance_name
     @inbox.channel.additional_attributes['evolution_instance_name']
+  end
+
+  def evolution_service
+    Whatsapp::EvolutionConnectionService.new(@inbox.channel, evolution_instance_name, inbox_name: @inbox.name)
+  end
+
+  def recreate_instance(service)
+    response = service.create_instance
+    service.link_chatwoot(access_token: access_token_for_current_user, chatwoot_url: ENV.fetch('FRONTEND_URL', nil))
+    service.register_status_webhook(evolution_status_webhook_url(evolution_instance_name))
+    response
   end
 
   def access_token_for_current_user

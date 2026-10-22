@@ -12,6 +12,7 @@ import {
   useStore,
 } from 'dashboard/composables/store';
 import ChannelName from './components/ChannelName.vue';
+import WhatsappQrStatusLabel from './components/WhatsappQrStatusLabel.vue';
 import ChannelIcon from 'next/icon/ChannelIcon.vue';
 import Button from 'dashboard/components-next/button/Button.vue';
 import { getInboxIdentifier, searchInboxes } from 'dashboard/helper/inbox';
@@ -176,6 +177,14 @@ const openDelete = inbox => {
                     {{ inbox.channel_identifier }}
                   </bdi>
                 </template>
+                <WhatsappQrStatusLabel
+                  v-if="
+                    inbox.additional_attributes?.connection_type ===
+                    'evolution_qr'
+                  "
+                  :inbox="inbox"
+                  class="ms-1 shrink-0"
+                />
               </div>
             </div>
           </div>

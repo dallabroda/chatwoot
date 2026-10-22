@@ -80,6 +80,7 @@ class Message < ApplicationRecord
   validates :content, length: { maximum: 150_000 }
   validates :processed_message_content, length: { maximum: 150_000 }
   validate :whatsapp_number_not_paused, on: :create
+  before_create :fail_when_whatsapp_qr_disconnected
 
   # when you have a temperory id in your frontend and want it echoed back via action cable
   attr_accessor :echo_id
@@ -294,6 +295,15 @@ class Message < ApplicationRecord
   end
 
   private
+
+  def fail_when_whatsapp_qr_disconnected
+    return unless outgoing? || template?
+    return unless inbox&.evolution_qr?
+    return if inbox.channel.evolution_connected_now?
+
+    self.status = :failed
+    self.external_error = I18n.t('errors.whatsapp.qr_disconnected')
+  end
 
   def whatsapp_number_not_paused
     return if activity? || inbox.blank?

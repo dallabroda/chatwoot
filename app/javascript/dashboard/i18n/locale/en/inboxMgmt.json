@@ -1663,6 +1663,23 @@
       "INSTAGRAM": "Instagram",
       "TIKTOK": "TikTok",
       "VOICE": "Voice"
+    },
+    "QR_CONNECTION": {
+      "STATUS": {
+        "CONNECTED": "Connected",
+        "DISCONNECTED": "Disconnected",
+        "QR_PENDING": "Waiting for QR scan"
+      },
+      "STATUS_LABEL": "WhatsApp connection",
+      "RECONNECT_BUTTON": "Reconnect (new QR code)",
+      "DIALOG_TITLE": "Reconnect WhatsApp",
+      "SCAN_INSTRUCTIONS": "On the phone of this number, open WhatsApp → Linked devices → Link a device and scan the code. Conversation history is kept.",
+      "WAITING_FOR_SCAN": "Waiting for scan…",
+      "CONNECTED_SUCCESS": "WhatsApp connected.",
+      "ERROR": "Could not generate a new QR code. Please try again.",
+      "CLOSE": "Close",
+      "DISCONNECTED_BANNER": "This WhatsApp (QR code) is disconnected: messages are not being sent or received.",
+      "DISCONNECTED_BANNER_AGENT": "This WhatsApp (QR code) is disconnected: messages are not being sent or received. Ask an administrator to reconnect it."
     }
   }
 }

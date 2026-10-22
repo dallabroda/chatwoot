@@ -28,10 +28,8 @@ class Webhooks::EvolutionEventsJob < ApplicationJob
   end
 
   def handle_connection_update(channel, params)
-    state = params.dig('data', 'state').to_s
-    connection_state = state == 'open' ? 'connected' : 'disconnected'
-    update_state(channel, connection_state)
-    broadcast(channel, 'connection_state' => connection_state)
+    connection_state = channel.apply_evolution_connection_state!(params.dig('data', 'state'))
+    broadcast(channel, 'connection_state' => connection_state) if connection_state
   end
 
   def update_state(channel, connection_state)

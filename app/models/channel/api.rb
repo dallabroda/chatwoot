@@ -31,6 +31,8 @@ class Channel::Api < ApplicationRecord
   validate :ensure_valid_agent_reply_time_window
   validates :webhook_url, length: { maximum: Limits::URL_LENGTH_LIMIT }
   EVOLUTION_IDENTITY_KEYS = %w[connection_type evolution_instance_name risk_accepted_at risk_accepted_by].freeze
+  # 'connecting' is a transient reconnect and is deliberately not mapped, so it never flips the stored state.
+  EVOLUTION_CONNECTION_STATES = { 'open' => 'connected', 'close' => 'disconnected' }.freeze
 
   before_update :preserve_evolution_identity
   after_create_commit -> { account.current_subscription.start_trial! }, if: :evolution_qr?
@@ -42,6 +44,36 @@ class Channel::Api < ApplicationRecord
 
   def evolution_qr?
     additional_attributes&.dig('connection_type') == 'evolution_qr'
+  end
+
+  def evolution_connection_state
+    additional_attributes&.dig('connection_state')
+  end
+
+  def evolution_connected?
+    evolution_qr? && evolution_connection_state == 'connected'
+  end
+
+  # Returns the mapped state when it changed, nil otherwise.
+  def apply_evolution_connection_state!(raw_state)
+    state = EVOLUTION_CONNECTION_STATES[raw_state.to_s]
+    return if state.nil? || state == evolution_connection_state
+
+    update!(additional_attributes: additional_attributes.merge('connection_state' => state))
+    state
+  end
+
+  # Trusts a stored 'connected'; otherwise asks Evolution, since a missed webhook must not block sending.
+  def evolution_connected_now?
+    return true if evolution_connected?
+
+    apply_evolution_connection_state!(
+      Whatsapp::EvolutionConnectionService.new(self, additional_attributes['evolution_instance_name']).connection_state
+    )
+    evolution_connected?
+  rescue StandardError => e
+    Rails.logger.warn "[Evolution] connection state check failed for channel #{id}: #{e.message}"
+    false
   end
 
   private

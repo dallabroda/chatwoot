@@ -18,6 +18,8 @@ import DuplicateInboxBanner from './channels/instagram/DuplicateInboxBanner.vue'
 import MicrosoftReauthorize from './channels/microsoft/Reauthorize.vue';
 import GoogleReauthorize from './channels/google/Reauthorize.vue';
 import WhatsappReauthorize from './channels/whatsapp/Reauthorize.vue';
+import WhatsappQrStatusLabel from './components/WhatsappQrStatusLabel.vue';
+import WhatsappQrReconnectDialog from './components/WhatsappQrReconnectDialog.vue';
 import InboxHealthAPI from 'dashboard/api/inboxHealth';
 import PreChatFormSettings from './PreChatForm/Settings.vue';
 import WeeklyAvailability from './components/WeeklyAvailability.vue';
@@ -78,6 +80,8 @@ export default {
     InstagramReauthorize,
     TiktokReauthorize,
     WhatsappReauthorize,
+    WhatsappQrStatusLabel,
+    WhatsappQrReconnectDialog,
     DuplicateInboxBanner,
     Editor,
     Avatar,
@@ -404,6 +408,11 @@ export default {
     },
     isEmbeddedSignupWhatsApp() {
       return this.inbox.provider_config?.source === 'embedded_signup';
+    },
+    isEvolutionQrInbox() {
+      return (
+        this.inbox.additional_attributes?.connection_type === 'evolution_qr'
+      );
     },
     whatsappUnauthorized() {
       return (
@@ -842,6 +851,26 @@ export default {
           class="mb-4"
           :class="bannerMaxWidth"
         />
+        <div
+          v-if="isEvolutionQrInbox"
+          class="flex flex-wrap items-center justify-between gap-3 p-4 mx-6 mb-4 border rounded-xl border-n-weak"
+          :class="bannerMaxWidth"
+        >
+          <div class="flex items-center gap-2 text-sm text-n-slate-12">
+            <span>{{ $t('INBOX_MGMT.QR_CONNECTION.STATUS_LABEL') }}</span>
+            <WhatsappQrStatusLabel :inbox="inbox" />
+          </div>
+          <NextButton
+            sm
+            icon="i-lucide-qr-code"
+            :label="$t('INBOX_MGMT.QR_CONNECTION.RECONNECT_BUTTON')"
+            @click="$refs.qrReconnectDialog.open()"
+          />
+          <WhatsappQrReconnectDialog
+            ref="qrReconnectDialog"
+            :inbox-id="inbox.id"
+          />
+        </div>
         <DuplicateInboxBanner
           v-if="hasDuplicateInstagramInbox"
           :content="$t('INBOX_MGMT.ADD.INSTAGRAM.DUPLICATE_INBOX_BANNER')"

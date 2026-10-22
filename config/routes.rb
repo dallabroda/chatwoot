@@ -330,6 +330,7 @@ Rails.application.routes.draw do
           resources :whatsapp_shared_assets, only: [:index]
           resources :whatsapp_evolution_connections, only: [:create, :destroy] do
             get :qr, on: :member
+            get :status, on: :member
           end
           resource :custom_billing, only: [:show], controller: 'custom_billing' do
             post :subscribe
