@@ -295,7 +295,7 @@ class Message < ApplicationRecord
 
   private
 
-  def whatsapp_number_paused
+  def whatsapp_number_not_paused
     return if activity? || inbox.blank?
     return unless inbox.whatsapp_number_paused?
 
