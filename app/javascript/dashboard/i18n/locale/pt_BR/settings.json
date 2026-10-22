@@ -1190,5 +1190,85 @@
       "CONFIRM_BUTTON_LABEL": "Excluir",
       "CANCEL_BUTTON_LABEL": "Cancelar"
     }
+  },
+  "CUSTOM_BILLING": {
+    "TITLE": "Plano e cobrança",
+    "DESCRIPTION": "Gerencie quantos números de WhatsApp sua empresa usa e a forma de pagamento.",
+    "LOAD_ERROR": "Não foi possível carregar os dados do plano.",
+    "PLAN": {
+      "FREE": "Plano gratuito",
+      "PAID": "Plano pago",
+      "TRIAL": "Período de teste",
+      "PAST_DUE": "Pagamento pendente",
+      "MONTHLY": "Mensalidade",
+      "FREE_PRICE": "Grátis",
+      "PER_MONTH": "{amount} / mês"
+    },
+    "USAGE": {
+      "TITLE": "Números de WhatsApp em uso",
+      "COUNT": "{used} de {limit}",
+      "NOTE": "Inclui números conectados pela API oficial e por QR code."
+    },
+    "TRIAL_NOTICE": "Período de teste até {date}: você pode usar até {limit} números sem custo. Depois, números acima do plano são pausados.",
+    "PAST_DUE_NOTICE": "A última cobrança não foi aprovada pelo banco. Troque o cartão para reativar seus números.",
+    "PAUSED_NOTICE": "Números pausados por estarem acima do limite do plano: {count}. Eles não enviam nem recebem mensagens.",
+    "BILLING_DAY": "Cobrança automática todo dia {day} de cada mês no cartão final {last4}.",
+    "NEXT_CHARGE": "Próxima cobrança: {date}, no valor de {amount}.",
+    "ADJUST": {
+      "TITLE": "Quantidade de números",
+      "DESCRIPTION": "1 número é gratuito. A partir do 2º, {price} por número adicional, por mês.",
+      "NUMBERS": "{n} número | {n} números",
+      "NEW_PRICE": "Novo valor",
+      "TABLE_PRICE": "{amount}/mês",
+      "CURRENT": "Este já é o seu plano",
+      "SUBSCRIBE": "Assinar {count} números por {amount}/mês",
+      "CHANGE": "Mudar para {count} números por {amount}/mês",
+      "DOWNGRADE": "Voltar ao plano gratuito",
+      "CHANGE_NOTE": "O novo valor passa a valer na próxima cobrança, dia {day}.",
+      "DOWNGRADE_NOTE": "A assinatura será cancelada e o cartão removido. Números acima de 1 serão pausados.",
+      "SUCCESS": "Plano atualizado.",
+      "ERROR": "Não foi possível atualizar o plano.",
+      "DECREASE": "Diminuir",
+      "INCREASE": "Aumentar"
+    },
+    "CARD": {
+      "TITLE": "Cartão de crédito",
+      "NONE": "Nenhum cartão cadastrado. O plano gratuito não precisa de cartão.",
+      "ENDING": "{brand} final {last4}",
+      "CHANGE": "Trocar cartão"
+    },
+    "INVOICES": {
+      "TITLE": "Faturas",
+      "EMPTY": "Nenhuma fatura ainda.",
+      "RECEIPT": "Comprovante",
+      "STATUS": {
+        "PAID": "Paga",
+        "OVERDUE": "Vencida",
+        "PENDING": "Pendente"
+      }
+    },
+    "MODAL": {
+      "SUBSCRIBE_TITLE": "Assinar {count} números",
+      "UPDATE_CARD_TITLE": "Trocar cartão",
+      "SUMMARY_TODAY": "Hoje: cobrança de {amount}.",
+      "SUMMARY_RECURRING": "Depois: {amount} todo dia {day} de cada mês, até você cancelar.",
+      "CARD_SECTION": "Dados do cartão",
+      "HOLDER_NAME": "Nome impresso no cartão",
+      "NUMBER": "Número do cartão",
+      "EXPIRY_MONTH": "Mês (MM)",
+      "EXPIRY_YEAR": "Ano (AAAA)",
+      "CVV": "CVV",
+      "HOLDER_SECTION": "Dados do titular",
+      "CPF_CNPJ": "CPF ou CNPJ",
+      "PHONE": "Celular com DDD",
+      "POSTAL_CODE": "CEP",
+      "ADDRESS_NUMBER": "Número do endereço",
+      "CONFIRM_SUBSCRIBE": "Confirmar assinatura",
+      "CONFIRM_CARD": "Salvar cartão",
+      "SECURITY_NOTE": "Os dados do cartão vão direto ao Asaas, nosso processador de pagamentos. Guardamos só a bandeira e os 4 últimos dígitos.",
+      "SUBSCRIBE_SUCCESS": "Assinatura criada.",
+      "CARD_SUCCESS": "Cartão atualizado.",
+      "ERROR": "Não foi possível processar o cartão."
+    }
   }
 }

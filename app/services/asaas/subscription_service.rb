@@ -22,7 +22,7 @@ class Asaas::SubscriptionService
       value: monthly_value_reais,
       nextDueDate: Date.current.iso8601,
       cycle: 'MONTHLY',
-      description: "Assinatura Chatwoot - #{total_numbers} números WhatsApp",
+      description: subscription_description(total_numbers),
       creditCard: {
         holderName: card_params[:holder_name],
         number: card_params[:number].to_s.gsub(/\D/, ''),
@@ -83,6 +83,7 @@ class Asaas::SubscriptionService
 
     client.put("/subscriptions/#{sub.asaas_subscription_id}", {
       value: new_reais,
+      description: subscription_description(new_total_numbers),
       updatePendingPayments: true
     })
 
@@ -117,6 +118,10 @@ class Asaas::SubscriptionService
   end
 
   private
+
+  def subscription_description(total_numbers)
+    "Assinatura Cred Chat - #{total_numbers} números de WhatsApp"
+  end
 
   def find_or_create_customer(holder_params)
     sub = account.current_subscription

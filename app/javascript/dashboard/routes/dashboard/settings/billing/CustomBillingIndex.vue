@@ -1,591 +1,581 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { computed, onMounted, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { useAlert } from 'dashboard/composables';
 import CustomBillingAPI from 'dashboard/api/customBilling';
 import BaseSettingsHeader from '../components/BaseSettingsHeader.vue';
+import Button from 'dashboard/components-next/button/Button.vue';
+import Input from 'dashboard/components-next/input/Input.vue';
+import Label from 'dashboard/components-next/label/Label.vue';
+import Banner from 'dashboard/components-next/banner/Banner.vue';
+import Dialog from 'dashboard/components-next/dialog/Dialog.vue';
+import Spinner from 'dashboard/components-next/spinner/Spinner.vue';
+
+const PRICE_PER_NUMBER_CENTS = 6000;
+const MAX_NUMBERS = 50;
+const PRICE_TABLE = [1, 2, 3, 4];
+
+const { t, locale } = useI18n();
 
 const loading = ref(true);
 const submitting = ref(false);
-const summary = ref({
-  allowed_waba_count: 1,
-  connected_waba_count: 0,
-  status: 'free',
-  monthly_amount_cents: 0,
-  credit_card_last4: null,
-  credit_card_brand: null,
-  next_due_date: null,
-  can_add_more: true,
-});
+const summary = ref({});
+const invoices = ref([]);
+const selectedNumbers = ref(1);
+const dialogRef = ref(null);
+const dialogMode = ref('subscribe');
 
-const selectedSlots = ref(1);
-const isCardModalOpen = ref(false);
-const modalMode = ref('subscribe'); // 'subscribe' or 'update_card'
-
-const cardForm = ref({
+const emptyForm = () => ({
   holder_name: '',
   number: '',
   expiry_month: '',
   expiry_year: '',
   ccv: '',
-  name: '',
-  email: '',
   cpf_cnpj: '',
   phone: '',
   postal_code: '',
   address_number: '',
 });
+const form = ref(emptyForm());
 
-const invoices = ref([]);
-const loadingInvoices = ref(false);
+const intlLocale = computed(() => locale.value.replace('_', '-'));
+const formatMoney = cents =>
+  new Intl.NumberFormat(intlLocale.value, {
+    style: 'currency',
+    currency: 'BRL',
+  }).format((cents || 0) / 100);
+const formatDate = value => {
+  if (!value) return '';
+  const date =
+    value.length === 10 ? new Date(`${value}T00:00:00`) : new Date(value);
+  return date.toLocaleDateString(intlLocale.value);
+};
+const priceFor = numbers => Math.max(numbers - 1, 0) * PRICE_PER_NUMBER_CENTS;
 
-const calculatedPrice = computed(() => {
-  if (selectedSlots.value <= 1) return 0;
-  return (selectedSlots.value - 1) * 60;
-});
-
-const currentMonthlyReais = computed(() => {
-  return (summary.value.monthly_amount_cents / 100).toFixed(2);
-});
-
-const hasActiveCard = computed(() => {
-  return !!summary.value.credit_card_last4;
-});
-
-const usagePercentage = computed(() => {
-  if (!summary.value.allowed_waba_count) return 0;
-  return Math.min(
+const isPaid = computed(() => Boolean(summary.value.credit_card_last4));
+const isPastDue = computed(() => summary.value.status === 'past_due');
+const inTrial = computed(
+  () => Boolean(summary.value.in_trial) && !isPaid.value
+);
+const usageLimit = computed(
+  () =>
+    summary.value.effective_waba_limit || summary.value.allowed_waba_count || 1
+);
+const usagePercent = computed(() =>
+  Math.min(
     100,
-    Math.round((summary.value.connected_waba_count / summary.value.allowed_waba_count) * 100)
-  );
+    Math.round(
+      ((summary.value.connected_waba_count || 0) / usageLimit.value) * 100
+    )
+  )
+);
+const pausedCount = computed(() => summary.value.paused_inbox_ids?.length || 0);
+
+const planLabel = computed(() => {
+  if (isPastDue.value) return t('CUSTOM_BILLING.PLAN.PAST_DUE');
+  if (isPaid.value) return t('CUSTOM_BILLING.PLAN.PAID');
+  if (inTrial.value) return t('CUSTOM_BILLING.PLAN.TRIAL');
+  return t('CUSTOM_BILLING.PLAN.FREE');
+});
+const monthlyLabel = computed(() =>
+  summary.value.monthly_amount_cents
+    ? t('CUSTOM_BILLING.PLAN.PER_MONTH', {
+        amount: formatMoney(summary.value.monthly_amount_cents),
+      })
+    : t('CUSTOM_BILLING.PLAN.FREE_PRICE')
+);
+
+const currentNumbers = computed(() => summary.value.allowed_waba_count || 1);
+const isCurrentSelection = computed(
+  () => selectedNumbers.value === currentNumbers.value
+);
+const isDowngradeToFree = computed(
+  () => isPaid.value && selectedNumbers.value === 1
+);
+const selectedPrice = computed(() => priceFor(selectedNumbers.value));
+const todayDay = computed(() => new Date().getDate());
+
+const applyLabel = computed(() => {
+  if (isCurrentSelection.value) return t('CUSTOM_BILLING.ADJUST.CURRENT');
+  if (isDowngradeToFree.value) return t('CUSTOM_BILLING.ADJUST.DOWNGRADE');
+  const params = {
+    count: selectedNumbers.value,
+    amount: formatMoney(selectedPrice.value),
+  };
+  return isPaid.value
+    ? t('CUSTOM_BILLING.ADJUST.CHANGE', params)
+    : t('CUSTOM_BILLING.ADJUST.SUBSCRIBE', params);
 });
 
-const isCurrentSlotCount = computed(() => {
-  return selectedSlots.value === summary.value.allowed_waba_count;
-});
+const errorMessage = (error, fallback) =>
+  error?.response?.data?.error || fallback;
 
 const fetchSummary = async () => {
-  loading.value = true;
   try {
     const { data } = await CustomBillingAPI.getSummary();
     summary.value = data;
-    selectedSlots.value = data.allowed_waba_count || 1;
+    selectedNumbers.value = data.allowed_waba_count || 1;
   } catch (error) {
-    useAlert(error?.response?.data?.error || 'Erro ao carregar dados do plano.');
-  } finally {
-    loading.value = false;
+    useAlert(errorMessage(error, t('CUSTOM_BILLING.LOAD_ERROR')));
   }
 };
 
 const fetchInvoices = async () => {
-  loadingInvoices.value = true;
   try {
     const { data } = await CustomBillingAPI.getInvoices();
     invoices.value = data || [];
-  } catch (error) {
-    // Silencioso em caso de erro secundário
-  } finally {
-    loadingInvoices.value = false;
+  } catch {
+    invoices.value = [];
   }
 };
 
-const incrementSlot = () => {
-  if (selectedSlots.value < 50) {
-    selectedSlots.value += 1;
-  }
+const refresh = async () => {
+  await Promise.all([fetchSummary(), fetchInvoices()]);
 };
 
-const decrementSlot = () => {
-  if (selectedSlots.value > 1) {
-    selectedSlots.value -= 1;
-  }
+const openDialog = mode => {
+  dialogMode.value = mode;
+  form.value = emptyForm();
+  dialogRef.value?.open();
 };
 
-const handleApplyPlan = async () => {
-  // Se for plano pago (2+) e não tiver cartão cadastrado, abre o modal
-  if (selectedSlots.value > 1 && !hasActiveCard.value) {
-    modalMode.value = 'subscribe';
-    isCardModalOpen.value = true;
+const applyPlan = async () => {
+  if (selectedNumbers.value > 1 && !isPaid.value) {
+    openDialog('subscribe');
     return;
   }
-
   submitting.value = true;
   try {
-    const { data } = await CustomBillingAPI.updateSlots(selectedSlots.value);
-    useAlert(data.message || 'Plano atualizado com sucesso!');
-    await fetchSummary();
+    await CustomBillingAPI.updateSlots(selectedNumbers.value);
+    useAlert(t('CUSTOM_BILLING.ADJUST.SUCCESS'));
+    await refresh();
   } catch (error) {
-    useAlert(error?.response?.data?.error || 'Erro ao atualizar plano.');
+    useAlert(errorMessage(error, t('CUSTOM_BILLING.ADJUST.ERROR')));
   } finally {
     submitting.value = false;
   }
 };
 
-const openUpdateCardModal = () => {
-  modalMode.value = 'update_card';
-  isCardModalOpen.value = true;
-};
+const cardPayload = () => ({
+  holder_name: form.value.holder_name,
+  number: form.value.number,
+  expiry_month: form.value.expiry_month,
+  expiry_year: form.value.expiry_year,
+  ccv: form.value.ccv,
+});
 
-const handleCardFormSubmit = async () => {
+const submitCard = async () => {
   submitting.value = true;
   try {
-    if (modalMode.value === 'update_card') {
-      const { data } = await CustomBillingAPI.updateCard({
-        card: {
-          holder_name: cardForm.value.holder_name,
-          number: cardForm.value.number,
-          expiry_month: cardForm.value.expiry_month,
-          expiry_year: cardForm.value.expiry_year,
-          ccv: cardForm.value.ccv,
+    if (dialogMode.value === 'update_card') {
+      await CustomBillingAPI.updateCard({ card: cardPayload() });
+      useAlert(t('CUSTOM_BILLING.MODAL.CARD_SUCCESS'));
+    } else {
+      await CustomBillingAPI.subscribe({
+        total_numbers: selectedNumbers.value,
+        card: cardPayload(),
+        holder: {
+          name: form.value.holder_name,
+          cpf_cnpj: form.value.cpf_cnpj,
+          phone: form.value.phone,
+          postal_code: form.value.postal_code,
+          address_number: form.value.address_number,
         },
       });
-      useAlert(data.message || 'Cartão atualizado com sucesso!');
-    } else {
-      const payload = {
-        total_numbers: selectedSlots.value,
-        card: {
-          holder_name: cardForm.value.holder_name,
-          number: cardForm.value.number,
-          expiry_month: cardForm.value.expiry_month,
-          expiry_year: cardForm.value.expiry_year,
-          ccv: cardForm.value.ccv,
-        },
-        holder: {
-          name: cardForm.value.name || cardForm.value.holder_name,
-          email: cardForm.value.email,
-          cpf_cnpj: cardForm.value.cpf_cnpj,
-          phone: cardForm.value.phone,
-          postal_code: cardForm.value.postal_code,
-          address_number: cardForm.value.address_number,
-        },
-      };
-      const { data } = await CustomBillingAPI.subscribe(payload);
-      useAlert(data.message || 'Assinatura realizada com sucesso!');
+      useAlert(t('CUSTOM_BILLING.MODAL.SUBSCRIBE_SUCCESS'));
     }
-    isCardModalOpen.value = false;
-    await fetchSummary();
-    await fetchInvoices();
+    dialogRef.value?.close();
+    await refresh();
   } catch (error) {
-    useAlert(error?.response?.data?.error || 'Erro ao processar cartão.');
+    useAlert(errorMessage(error, t('CUSTOM_BILLING.MODAL.ERROR')));
   } finally {
     submitting.value = false;
   }
 };
 
-onMounted(() => {
-  fetchSummary();
-  fetchInvoices();
+const invoiceStatusLabel = status => {
+  if (['CONFIRMED', 'RECEIVED', 'RECEIVED_IN_CASH'].includes(status)) {
+    return t('CUSTOM_BILLING.INVOICES.STATUS.PAID');
+  }
+  if (status === 'OVERDUE') return t('CUSTOM_BILLING.INVOICES.STATUS.OVERDUE');
+  return t('CUSTOM_BILLING.INVOICES.STATUS.PENDING');
+};
+const invoiceStatusColor = status => {
+  if (['CONFIRMED', 'RECEIVED', 'RECEIVED_IN_CASH'].includes(status)) {
+    return 'teal';
+  }
+  return status === 'OVERDUE' ? 'ruby' : 'amber';
+};
+
+const dialogTitle = computed(() =>
+  dialogMode.value === 'update_card'
+    ? t('CUSTOM_BILLING.MODAL.UPDATE_CARD_TITLE')
+    : t('CUSTOM_BILLING.MODAL.SUBSCRIBE_TITLE', {
+        count: selectedNumbers.value,
+      })
+);
+const dialogConfirmLabel = computed(() =>
+  dialogMode.value === 'update_card'
+    ? t('CUSTOM_BILLING.MODAL.CONFIRM_CARD')
+    : t('CUSTOM_BILLING.MODAL.CONFIRM_SUBSCRIBE')
+);
+
+onMounted(async () => {
+  await refresh();
+  loading.value = false;
 });
 </script>
 
 <template>
-  <div class="flex flex-col w-full pb-12">
+  <div class="flex flex-col w-full gap-6 pb-12">
     <BaseSettingsHeader
-      title="Plano & Faturamento"
-      description="Gerencie as conexões de WhatsApp do seu sistema e o método de pagamento."
+      :title="t('CUSTOM_BILLING.TITLE')"
+      :description="t('CUSTOM_BILLING.DESCRIPTION')"
     />
 
-    <!-- Alerta de Inadimplência -->
-    <div
-      v-if="summary.status === 'past_due'"
-      class="mt-4 p-4 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/60 flex items-start gap-3"
+    <div v-if="loading" class="flex justify-center py-12">
+      <Spinner />
+    </div>
+
+    <template v-else>
+      <Banner v-if="isPastDue" color="ruby">
+        {{ t('CUSTOM_BILLING.PAST_DUE_NOTICE') }}
+      </Banner>
+      <Banner v-if="pausedCount" color="ruby">
+        {{ t('CUSTOM_BILLING.PAUSED_NOTICE', { count: pausedCount }) }}
+      </Banner>
+      <Banner v-if="inTrial" color="amber">
+        {{
+          t('CUSTOM_BILLING.TRIAL_NOTICE', {
+            date: formatDate(summary.trial_ends_at),
+            limit: summary.effective_waba_limit,
+          })
+        }}
+      </Banner>
+
+      <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <div class="flex flex-col gap-6 lg:col-span-2">
+          <section class="p-6 border rounded-xl border-n-weak">
+            <div
+              class="flex flex-wrap items-start justify-between gap-4 pb-4 border-b border-n-weak"
+            >
+              <div class="flex items-center gap-2">
+                <span class="text-heading-3 text-n-slate-12">
+                  {{ planLabel }}
+                </span>
+              </div>
+              <div class="text-end">
+                <span class="block text-body-main text-n-slate-11">
+                  {{ t('CUSTOM_BILLING.PLAN.MONTHLY') }}
+                </span>
+                <span class="text-heading-3 text-n-slate-12">
+                  {{ monthlyLabel }}
+                </span>
+              </div>
+            </div>
+
+            <div class="flex flex-col gap-2 mt-4">
+              <div
+                class="flex items-center justify-between text-body-main text-n-slate-12"
+              >
+                <span>{{ t('CUSTOM_BILLING.USAGE.TITLE') }}</span>
+                <span>
+                  {{
+                    t('CUSTOM_BILLING.USAGE.COUNT', {
+                      used: summary.connected_waba_count || 0,
+                      limit: usageLimit,
+                    })
+                  }}
+                </span>
+              </div>
+              <div class="w-full h-2 overflow-hidden rounded-full bg-n-alpha-2">
+                <div
+                  class="h-2 rounded-full bg-n-brand transition-all"
+                  :style="{ width: `${usagePercent}%` }"
+                />
+              </div>
+              <span class="text-sm text-n-slate-11">
+                {{ t('CUSTOM_BILLING.USAGE.NOTE') }}
+              </span>
+            </div>
+
+            <div
+              v-if="isPaid && summary.billing_day"
+              class="flex flex-col gap-1 p-3 mt-4 rounded-lg bg-n-alpha-2 text-body-main text-n-slate-12"
+            >
+              <span class="font-medium">
+                {{
+                  t('CUSTOM_BILLING.BILLING_DAY', {
+                    day: summary.billing_day,
+                    last4: summary.credit_card_last4,
+                  })
+                }}
+              </span>
+              <span class="text-n-slate-11">
+                {{
+                  t('CUSTOM_BILLING.NEXT_CHARGE', {
+                    date: formatDate(summary.next_due_date),
+                    amount: formatMoney(summary.monthly_amount_cents),
+                  })
+                }}
+              </span>
+            </div>
+          </section>
+
+          <section class="p-6 border rounded-xl border-n-weak">
+            <h3 class="mb-1 text-heading-3 text-n-slate-12">
+              {{ t('CUSTOM_BILLING.ADJUST.TITLE') }}
+            </h3>
+            <p class="mb-5 text-body-main text-n-slate-11">
+              {{
+                t('CUSTOM_BILLING.ADJUST.DESCRIPTION', {
+                  price: formatMoney(PRICE_PER_NUMBER_CENTS),
+                })
+              }}
+            </p>
+
+            <div
+              class="flex flex-wrap items-center justify-between gap-4 p-4 rounded-lg bg-n-alpha-2"
+            >
+              <div class="flex items-center gap-3">
+                <Button
+                  icon="i-lucide-minus"
+                  slate
+                  sm
+                  :aria-label="t('CUSTOM_BILLING.ADJUST.DECREASE')"
+                  :disabled="selectedNumbers <= 1"
+                  @click="selectedNumbers -= 1"
+                />
+                <span
+                  class="text-heading-2 text-n-slate-12 min-w-28 text-center"
+                >
+                  {{ t('CUSTOM_BILLING.ADJUST.NUMBERS', selectedNumbers) }}
+                </span>
+                <Button
+                  icon="i-lucide-plus"
+                  slate
+                  sm
+                  :aria-label="t('CUSTOM_BILLING.ADJUST.INCREASE')"
+                  :disabled="selectedNumbers >= MAX_NUMBERS"
+                  @click="selectedNumbers += 1"
+                />
+              </div>
+              <div class="text-end">
+                <span class="block text-sm text-n-slate-11">
+                  {{ t('CUSTOM_BILLING.ADJUST.NEW_PRICE') }}
+                </span>
+                <span class="text-heading-2 text-n-slate-12">
+                  {{
+                    selectedPrice
+                      ? t('CUSTOM_BILLING.PLAN.PER_MONTH', {
+                          amount: formatMoney(selectedPrice),
+                        })
+                      : t('CUSTOM_BILLING.PLAN.FREE_PRICE')
+                  }}
+                </span>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2 mt-3 sm:grid-cols-4">
+              <div
+                v-for="numbers in PRICE_TABLE"
+                :key="numbers"
+                class="p-2 text-center border rounded-lg border-n-weak"
+              >
+                <span class="block text-sm text-n-slate-11">
+                  {{ t('CUSTOM_BILLING.ADJUST.NUMBERS', numbers) }}
+                </span>
+                <span class="text-sm font-medium text-n-slate-12">
+                  {{
+                    priceFor(numbers)
+                      ? t('CUSTOM_BILLING.ADJUST.TABLE_PRICE', {
+                          amount: formatMoney(priceFor(numbers)),
+                        })
+                      : t('CUSTOM_BILLING.PLAN.FREE_PRICE')
+                  }}
+                </span>
+              </div>
+            </div>
+
+            <p
+              v-if="isPaid && !isCurrentSelection && !isDowngradeToFree"
+              class="mt-4 text-sm text-n-slate-11"
+            >
+              {{
+                t('CUSTOM_BILLING.ADJUST.CHANGE_NOTE', {
+                  day: summary.billing_day,
+                })
+              }}
+            </p>
+            <p v-if="isDowngradeToFree" class="mt-4 text-sm text-n-ruby-11">
+              {{ t('CUSTOM_BILLING.ADJUST.DOWNGRADE_NOTE') }}
+            </p>
+
+            <div class="flex justify-end mt-5">
+              <Button
+                :label="applyLabel"
+                :color="isDowngradeToFree ? 'ruby' : 'blue'"
+                :disabled="isCurrentSelection || submitting"
+                :is-loading="submitting"
+                @click="applyPlan"
+              />
+            </div>
+          </section>
+        </div>
+
+        <div class="flex flex-col gap-6">
+          <section class="p-6 border rounded-xl border-n-weak">
+            <h4 class="mb-3 text-heading-3 text-n-slate-12">
+              {{ t('CUSTOM_BILLING.CARD.TITLE') }}
+            </h4>
+            <template v-if="isPaid">
+              <p class="text-body-main text-n-slate-12">
+                {{
+                  t('CUSTOM_BILLING.CARD.ENDING', {
+                    brand: summary.credit_card_brand || '',
+                    last4: summary.credit_card_last4,
+                  })
+                }}
+              </p>
+              <Button
+                class="w-full mt-4"
+                slate
+                sm
+                :label="t('CUSTOM_BILLING.CARD.CHANGE')"
+                @click="openDialog('update_card')"
+              />
+            </template>
+            <p v-else class="text-body-main text-n-slate-11">
+              {{ t('CUSTOM_BILLING.CARD.NONE') }}
+            </p>
+          </section>
+
+          <section class="p-6 border rounded-xl border-n-weak">
+            <h4 class="mb-3 text-heading-3 text-n-slate-12">
+              {{ t('CUSTOM_BILLING.INVOICES.TITLE') }}
+            </h4>
+            <p v-if="!invoices.length" class="text-body-main text-n-slate-11">
+              {{ t('CUSTOM_BILLING.INVOICES.EMPTY') }}
+            </p>
+            <ul v-else class="flex flex-col gap-2">
+              <li
+                v-for="invoice in invoices"
+                :key="invoice.id"
+                class="flex items-center justify-between gap-2 p-2 border rounded-lg border-n-weak"
+              >
+                <div class="flex flex-col">
+                  <span class="text-body-main text-n-slate-12">
+                    {{ formatMoney(invoice.amount_cents) }}
+                  </span>
+                  <span class="text-sm text-n-slate-11">
+                    {{ formatDate(invoice.payment_date || invoice.due_date) }}
+                  </span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <Label
+                    :label="invoiceStatusLabel(invoice.status)"
+                    :color="invoiceStatusColor(invoice.status)"
+                    compact
+                  />
+                  <a
+                    v-if="invoice.invoice_url"
+                    :href="invoice.invoice_url"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="text-sm text-n-brand hover:underline"
+                  >
+                    {{ t('CUSTOM_BILLING.INVOICES.RECEIPT') }}
+                  </a>
+                </div>
+              </li>
+            </ul>
+          </section>
+        </div>
+      </div>
+    </template>
+
+    <Dialog
+      ref="dialogRef"
+      :title="dialogTitle"
+      :confirm-button-label="dialogConfirmLabel"
+      :is-loading="submitting"
+      width="lg"
+      overflow-y-auto
+      @confirm="submitCard"
     >
-      <div class="i-lucide-alert-triangle text-red-600 text-xl flex-shrink-0 mt-0.5" />
-      <div>
-        <h4 class="text-sm font-semibold text-red-900 dark:text-red-200">
-          Pagamento pendente no Cartão de Crédito
-        </h4>
-        <p class="text-xs text-red-700 dark:text-red-300 mt-1">
-          A última renovação da sua mensalidade não foi aprovada pelo banco emissor. Atualize o seu cartão abaixo para evitar a suspensão temporária dos seus números adicionais.
+      <div class="flex flex-col gap-4">
+        <div
+          v-if="dialogMode === 'subscribe'"
+          class="flex flex-col gap-1 p-3 rounded-lg bg-n-alpha-2 text-body-main text-n-slate-12"
+        >
+          <span class="font-medium">
+            {{
+              t('CUSTOM_BILLING.MODAL.SUMMARY_TODAY', {
+                amount: formatMoney(selectedPrice),
+              })
+            }}
+          </span>
+          <span>
+            {{
+              t('CUSTOM_BILLING.MODAL.SUMMARY_RECURRING', {
+                amount: formatMoney(selectedPrice),
+                day: todayDay,
+              })
+            }}
+          </span>
+        </div>
+
+        <span class="text-sm font-medium text-n-slate-11">
+          {{ t('CUSTOM_BILLING.MODAL.CARD_SECTION') }}
+        </span>
+        <Input
+          v-model="form.holder_name"
+          :label="t('CUSTOM_BILLING.MODAL.HOLDER_NAME')"
+        />
+        <Input
+          v-model="form.number"
+          :label="t('CUSTOM_BILLING.MODAL.NUMBER')"
+        />
+        <div class="grid grid-cols-3 gap-3">
+          <Input
+            v-model="form.expiry_month"
+            :label="t('CUSTOM_BILLING.MODAL.EXPIRY_MONTH')"
+          />
+          <Input
+            v-model="form.expiry_year"
+            :label="t('CUSTOM_BILLING.MODAL.EXPIRY_YEAR')"
+          />
+          <Input v-model="form.ccv" :label="t('CUSTOM_BILLING.MODAL.CVV')" />
+        </div>
+
+        <template v-if="dialogMode === 'subscribe'">
+          <span class="text-sm font-medium text-n-slate-11">
+            {{ t('CUSTOM_BILLING.MODAL.HOLDER_SECTION') }}
+          </span>
+          <div class="grid grid-cols-2 gap-3">
+            <Input
+              v-model="form.cpf_cnpj"
+              :label="t('CUSTOM_BILLING.MODAL.CPF_CNPJ')"
+            />
+            <Input
+              v-model="form.phone"
+              :label="t('CUSTOM_BILLING.MODAL.PHONE')"
+            />
+            <Input
+              v-model="form.postal_code"
+              :label="t('CUSTOM_BILLING.MODAL.POSTAL_CODE')"
+            />
+            <Input
+              v-model="form.address_number"
+              :label="t('CUSTOM_BILLING.MODAL.ADDRESS_NUMBER')"
+            />
+          </div>
+        </template>
+
+        <p class="text-sm text-n-slate-11">
+          {{ t('CUSTOM_BILLING.MODAL.SECURITY_NOTE') }}
         </p>
       </div>
-    </div>
-
-    <div v-if="loading" class="mt-8 flex justify-center py-12">
-      <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500" />
-    </div>
-
-    <div v-else class="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <!-- Coluna Principal (2/3) -->
-      <div class="lg:col-span-2 space-y-6">
-        <!-- Card 1: Consumo Atual -->
-        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm">
-          <div class="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
-            <div>
-              <span class="text-xs font-semibold tracking-wider uppercase text-slate-400">Status da Conta</span>
-              <h3 class="text-lg font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2 mt-0.5">
-                <span
-                  class="w-2.5 h-2.5 rounded-full"
-                  :class="summary.status === 'past_due' ? 'bg-red-500' : 'bg-emerald-500'"
-                />
-                {{ summary.allowed_waba_count <= 1 ? 'Plano Gratuito' : 'Plano Pro Recorrente' }}
-              </h3>
-            </div>
-            <div class="text-right">
-              <span class="text-xs text-slate-400">Mensalidade Atual</span>
-              <p class="text-lg font-bold text-emerald-600 dark:text-emerald-400">
-                {{ summary.monthly_amount_cents === 0 ? 'Grátis' : `R$ ${currentMonthlyReais} / mês` }}
-              </p>
-            </div>
-          </div>
-
-          <div class="mt-6">
-            <div class="flex justify-between items-center text-sm font-medium text-slate-700 dark:text-slate-200 mb-2">
-              <span class="flex items-center gap-2">
-                <i class="i-lucide-smartphone text-emerald-600" />
-                Conexões de WhatsApp em Uso
-              </span>
-              <span>{{ summary.connected_waba_count }} de {{ summary.allowed_waba_count }} permitidos</span>
-            </div>
-            <div class="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-3 overflow-hidden">
-              <div
-                class="bg-emerald-500 h-3 rounded-full transition-all duration-500"
-                :style="{ width: `${usagePercentage}%` }"
-              />
-            </div>
-            <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">
-              * Inclui números conectados via WhatsApp Cloud API (Oficial) e QR Code.
-            </p>
-          </div>
-        </div>
-
-        <!-- Card 2: Seletor de Upgrade / Downgrade -->
-        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm">
-          <h3 class="text-base font-bold text-slate-800 dark:text-slate-100 mb-1">
-            Ajustar Quantidade de Números
-          </h3>
-          <p class="text-xs text-slate-500 dark:text-slate-400 mb-6">
-            Escolha quantos números de WhatsApp a sua empresa precisa. 1 número é gratuito; a partir do 2º, são R$ 60,00 por número adicional.
-          </p>
-
-          <!-- Seletor Interativo -->
-          <div class="flex flex-col sm:flex-row items-center justify-between p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-700/60 gap-4">
-            <div class="flex items-center gap-3">
-              <button
-                type="button"
-                @click="decrementSlot"
-                :disabled="selectedSlots <= 1"
-                class="w-10 h-10 rounded-lg flex items-center justify-center font-bold text-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed shadow-sm transition"
-              >
-                -
-              </button>
-              <div class="w-16 text-center">
-                <span class="text-2xl font-black text-slate-900 dark:text-white">{{ selectedSlots }}</span>
-                <span class="block text-[11px] text-slate-400 uppercase font-semibold">
-                  {{ selectedSlots === 1 ? 'número' : 'números' }}
-                </span>
-              </div>
-              <button
-                type="button"
-                @click="incrementSlot"
-                :disabled="selectedSlots >= 50"
-                class="w-10 h-10 rounded-lg flex items-center justify-center font-bold text-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed shadow-sm transition"
-              >
-                +
-              </button>
-            </div>
-
-            <div class="text-center sm:text-right">
-              <span class="text-xs font-semibold uppercase text-slate-400">Novo Valor Previsto</span>
-              <div class="text-2xl font-black text-emerald-600 dark:text-emerald-400">
-                {{ calculatedPrice === 0 ? 'Grátis' : `R$ ${calculatedPrice},00 / mês` }}
-              </div>
-            </div>
-          </div>
-
-          <!-- Tabela de Preços Informativa -->
-          <div class="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-2 text-center text-xs">
-            <div class="p-2 rounded-lg bg-slate-50 dark:bg-slate-800/30 border border-slate-100 dark:border-slate-800">
-              <span class="block text-slate-400">1 Número</span>
-              <strong class="text-emerald-600 font-bold">Grátis</strong>
-            </div>
-            <div class="p-2 rounded-lg bg-slate-50 dark:bg-slate-800/30 border border-slate-100 dark:border-slate-800">
-              <span class="block text-slate-400">2 Números</span>
-              <strong class="text-slate-700 dark:text-slate-200 font-bold">R$ 60/mês</strong>
-            </div>
-            <div class="p-2 rounded-lg bg-slate-50 dark:bg-slate-800/30 border border-slate-100 dark:border-slate-800">
-              <span class="block text-slate-400">3 Números</span>
-              <strong class="text-slate-700 dark:text-slate-200 font-bold">R$ 120/mês</strong>
-            </div>
-            <div class="p-2 rounded-lg bg-slate-50 dark:bg-slate-800/30 border border-slate-100 dark:border-slate-800">
-              <span class="block text-slate-400">4 Números</span>
-              <strong class="text-slate-700 dark:text-slate-200 font-bold">R$ 180/mês</strong>
-            </div>
-          </div>
-
-          <!-- Botão de Ação -->
-          <div class="mt-6 flex justify-end">
-            <button
-              type="button"
-              @click="handleApplyPlan"
-              :disabled="isCurrentSlotCount || submitting"
-              class="px-6 py-3 rounded-xl font-bold text-sm shadow-md transition flex items-center justify-center gap-2"
-              :style="isCurrentSlotCount ? 'background-color: #f1f5f9; color: #94a3b8; border: 1px solid #cbd5e1; cursor: not-allowed;' : 'background-color: #1f93ff; color: #ffffff; cursor: pointer;'"
-            >
-              <span v-if="submitting" class="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
-              <span v-if="isCurrentSlotCount">Plano Selecionado é o Atual ({{ summary.allowed_waba_count }} número)</span>
-              <span v-else-if="selectedSlots > 1 && !hasActiveCard">
-                💳 Comprar / Assinar {{ selectedSlots }} Números (R$ {{ calculatedPrice }},00 / mês)
-              </span>
-              <span v-else>
-                Confirmar Alteração para {{ selectedSlots }} Números (R$ {{ calculatedPrice }},00 / mês)
-              </span>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Coluna Lateral (1/3) -->
-      <div class="space-y-6">
-        <!-- Card 3: Método de Pagamento (Cartão) -->
-        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm">
-          <h4 class="text-sm font-bold text-slate-800 dark:text-slate-100 mb-3 flex items-center gap-2">
-            <i class="i-lucide-credit-card text-woot-500" />
-            Cartão de Crédito
-          </h4>
-
-          <div v-if="hasActiveCard" class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700">
-            <div class="flex items-center justify-between mb-2">
-              <span class="text-xs uppercase font-bold tracking-wider text-slate-400">
-                {{ summary.credit_card_brand || 'Cartão' }}
-              </span>
-              <span class="text-xs font-medium text-emerald-600 bg-emerald-50 dark:bg-emerald-950 px-2 py-0.5 rounded-full">
-                Ativo
-              </span>
-            </div>
-            <div class="text-base font-mono font-bold text-slate-800 dark:text-slate-100">
-              •••• •••• •••• {{ summary.credit_card_last4 }}
-            </div>
-            <p v-if="summary.next_due_date" class="text-[11px] text-slate-400 mt-2">
-              Próxima renovação: {{ summary.next_due_date }}
-            </p>
-
-            <button
-              type="button"
-              @click="openUpdateCardModal"
-              class="mt-4 w-full py-2 px-3 rounded-lg text-xs font-semibold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-700 transition"
-            >
-              Trocar Cartão de Crédito
-            </button>
-          </div>
-
-          <div v-else class="text-center py-6 px-4 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-dashed border-slate-200 dark:border-slate-700">
-            <div class="i-lucide-shield-check text-2xl text-slate-400 mx-auto mb-2" />
-            <p class="text-xs text-slate-500 dark:text-slate-400">
-              Você está no plano gratuito. Nenhum cartão é necessário para gerenciar 1 número.
-            </p>
-            <button
-              type="button"
-              @click="() => { selectedSlots = 2; handleApplyPlan(); }"
-              class="mt-3 inline-flex items-center justify-center px-4 py-2 rounded-lg text-xs font-bold shadow-sm transition"
-              style="background-color: #1f93ff; color: #ffffff;"
-            >
-              + Contratar Mais Números
-            </button>
-          </div>
-        </div>
-
-        <!-- Card 4: Histórico de Faturas -->
-        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm">
-          <h4 class="text-sm font-bold text-slate-800 dark:text-slate-100 mb-3 flex items-center gap-2">
-            <i class="i-lucide-receipt text-emerald-600" />
-            Faturas Recentes
-          </h4>
-
-          <div v-if="loadingInvoices" class="py-4 text-center text-xs text-slate-400">
-            Carregando recibos...
-          </div>
-
-          <div v-else-if="invoices.length === 0" class="py-6 text-center text-xs text-slate-400">
-            Nenhuma fatura emitida até o momento.
-          </div>
-
-          <div v-else class="space-y-2">
-            <div
-              v-for="invoice in invoices"
-              :key="invoice.id"
-              class="flex items-center justify-between p-2.5 rounded-lg border border-slate-100 dark:border-slate-800 text-xs"
-            >
-              <div>
-                <span class="font-semibold text-slate-800 dark:text-slate-200">
-                  R$ {{ (invoice.amount_cents / 100).toFixed(2) }}
-                </span>
-                <span class="block text-[11px] text-slate-400">
-                  {{ new Date(invoice.created_at).toLocaleDateString('pt-BR') }}
-                </span>
-              </div>
-              <a
-                v-if="invoice.invoice_url"
-                :href="invoice.invoice_url"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="text-emerald-600 hover:underline font-semibold"
-              >
-                Comprovante ↗
-              </a>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Modal de Cartão de Crédito -->
-    <div
-      v-if="isCardModalOpen"
-      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm"
-    >
-      <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl max-w-lg w-full p-6 max-h-[90vh] overflow-y-auto">
-        <div class="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
-          <h3 class="text-base font-bold text-slate-900 dark:text-white">
-            {{ modalMode === 'update_card' ? 'Atualizar Cartão de Crédito' : `Assinar Plano (${selectedSlots} números)` }}
-          </h3>
-          <button
-            type="button"
-            @click="isCardModalOpen = false"
-            class="text-slate-400 hover:text-slate-600 text-lg font-bold"
-          >
-            ✕
-          </button>
-        </div>
-
-        <form @submit.prevent="handleCardFormSubmit" class="mt-4 space-y-4">
-          <div v-if="modalMode !== 'update_card'" class="p-3 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 text-xs text-emerald-800 dark:text-emerald-300">
-            Você está contratando <strong>{{ selectedSlots }} números de WhatsApp</strong> por <strong>R$ {{ calculatedPrice }},00 / mês</strong> debitados automaticamente no cartão.
-          </div>
-
-          <!-- Dados do Cartão -->
-          <div class="space-y-3">
-            <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Dados do Cartão</span>
-            <div>
-              <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Nome impresso no Cartão</label>
-              <input
-                v-model="cardForm.holder_name"
-                required
-                type="text"
-                placeholder="Ex: JOAO SILVA"
-                class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm focus:ring-2 focus:ring-emerald-500 outline-none uppercase"
-              />
-            </div>
-
-            <div>
-              <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Número do Cartão</label>
-              <input
-                v-model="cardForm.number"
-                required
-                type="text"
-                maxlength="19"
-                placeholder="0000 0000 0000 0000"
-                class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm focus:ring-2 focus:ring-emerald-500 outline-none font-mono"
-              />
-            </div>
-
-            <div class="grid grid-cols-3 gap-2">
-              <div>
-                <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Mês (MM)</label>
-                <input
-                  v-model="cardForm.expiry_month"
-                  required
-                  type="text"
-                  maxlength="2"
-                  placeholder="12"
-                  class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm text-center focus:ring-2 focus:ring-emerald-500 outline-none font-mono"
-                />
-              </div>
-              <div>
-                <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Ano (AAAA)</label>
-                <input
-                  v-model="cardForm.expiry_year"
-                  required
-                  type="text"
-                  maxlength="4"
-                  placeholder="2028"
-                  class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm text-center focus:ring-2 focus:ring-emerald-500 outline-none font-mono"
-                />
-              </div>
-              <div>
-                <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">CVV</label>
-                <input
-                  v-model="cardForm.ccv"
-                  required
-                  type="text"
-                  maxlength="4"
-                  placeholder="123"
-                  class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm text-center focus:ring-2 focus:ring-emerald-500 outline-none font-mono"
-                />
-              </div>
-            </div>
-          </div>
-
-          <!-- Dados do Titular (apenas ao assinar pela 1ª vez) -->
-          <div v-if="modalMode !== 'update_card'" class="space-y-3 pt-3 border-t border-slate-100 dark:border-slate-800">
-            <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Titular do Cartão (Exigência Asaas)</span>
-
-            <div class="grid grid-cols-2 gap-2">
-              <div>
-                <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">CPF ou CNPJ</label>
-                <input
-                  v-model="cardForm.cpf_cnpj"
-                  required
-                  type="text"
-                  placeholder="000.000.000-00"
-                  class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm focus:ring-2 focus:ring-emerald-500 outline-none"
-                />
-              </div>
-              <div>
-                <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Celular com DDD</label>
-                <input
-                  v-model="cardForm.phone"
-                  required
-                  type="text"
-                  placeholder="(11) 99999-9999"
-                  class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm focus:ring-2 focus:ring-emerald-500 outline-none"
-                />
-              </div>
-            </div>
-
-            <div class="grid grid-cols-3 gap-2">
-              <div class="col-span-2">
-                <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">CEP</label>
-                <input
-                  v-model="cardForm.postal_code"
-                  required
-                  type="text"
-                  placeholder="00000-000"
-                  class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm focus:ring-2 focus:ring-emerald-500 outline-none"
-                />
-              </div>
-              <div>
-                <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Número</label>
-                <input
-                  v-model="cardForm.address_number"
-                  required
-                  type="text"
-                  placeholder="100"
-                  class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm focus:ring-2 focus:ring-emerald-500 outline-none"
-                />
-              </div>
-            </div>
-          </div>
-
-          <div class="pt-4 flex justify-end gap-2 border-t border-slate-100 dark:border-slate-800">
-            <button
-              type="button"
-              @click="isCardModalOpen = false"
-              class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
-            >
-              Cancelar
-            </button>
-            <button
-              type="submit"
-              :disabled="submitting"
-              class="px-5 py-2.5 rounded-xl text-xs font-bold shadow-md transition flex items-center gap-2 cursor-pointer"
-              style="background-color: #1f93ff; color: #ffffff;"
-            >
-              <span v-if="submitting" class="animate-spin rounded-full h-3 w-3 border-b-2 border-white" />
-              <span>{{ modalMode === 'update_card' ? 'Salvar Cartão' : `Confirmar Assinatura (R$ ${calculatedPrice},00 / mês)` }}</span>
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+    </Dialog>
   </div>
 </template>

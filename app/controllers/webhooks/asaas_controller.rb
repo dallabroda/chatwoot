@@ -38,7 +38,7 @@ class Webhooks::AsaasController < ActionController::API
     sub = find_subscription(payment)
     return unless sub
 
-    sub.update!(status: 'active')
+    sub.update!(status: 'active', next_due_date: following_due_date(sub, payment))
 
     invoice = sub.account.billing_invoices.find_or_initialize_by(asaas_payment_id: payment['id'])
     invoice.update!(
@@ -64,6 +64,14 @@ class Webhooks::AsaasController < ActionController::API
     sub = AccountSubscription.find_by(asaas_subscription_id: sub_id)
     sub&.update!(status: 'canceled', allowed_waba_count: 1, monthly_amount_cents: 0, asaas_subscription_id: nil,
                  credit_card_last4: nil, credit_card_brand: nil, next_due_date: nil)
+  end
+
+  # Monthly cycle: once a payment clears, the next charge is one month after its due date.
+  def following_due_date(sub, payment)
+    due = payment['dueDate'].presence&.to_date
+    return sub.next_due_date if due.blank?
+
+    [sub.next_due_date, due.next_month].compact.max
   end
 
   def find_subscription(payment)

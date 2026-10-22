@@ -1190,5 +1190,85 @@
       "CONFIRM_BUTTON_LABEL": "Delete",
       "CANCEL_BUTTON_LABEL": "Cancel"
     }
+  },
+  "CUSTOM_BILLING": {
+    "TITLE": "Plan and billing",
+    "DESCRIPTION": "Manage how many WhatsApp numbers your company uses and the payment method.",
+    "LOAD_ERROR": "Could not load the plan details.",
+    "PLAN": {
+      "FREE": "Free plan",
+      "PAID": "Paid plan",
+      "TRIAL": "Free trial",
+      "PAST_DUE": "Payment pending",
+      "MONTHLY": "Monthly fee",
+      "FREE_PRICE": "Free",
+      "PER_MONTH": "{amount} / month"
+    },
+    "USAGE": {
+      "TITLE": "WhatsApp numbers in use",
+      "COUNT": "{used} of {limit}",
+      "NOTE": "Includes numbers connected through the official API and by QR code."
+    },
+    "TRIAL_NOTICE": "Free trial until {date}: you can use up to {limit} numbers at no cost. Afterwards, numbers over the plan are paused.",
+    "PAST_DUE_NOTICE": "The last charge was declined. Change the card to reactivate your numbers.",
+    "PAUSED_NOTICE": "Numbers paused for being over the plan limit: {count}. They do not send or receive messages.",
+    "BILLING_DAY": "Automatic charge on day {day} of every month to the card ending in {last4}.",
+    "NEXT_CHARGE": "Next charge: {date}, {amount}.",
+    "ADJUST": {
+      "TITLE": "How many numbers",
+      "DESCRIPTION": "1 number is free. From the 2nd on, {price} per additional number, per month.",
+      "NUMBERS": "{n} number | {n} numbers",
+      "NEW_PRICE": "New price",
+      "TABLE_PRICE": "{amount}/month",
+      "CURRENT": "This is your current plan",
+      "SUBSCRIBE": "Subscribe to {count} numbers for {amount}/month",
+      "CHANGE": "Change to {count} numbers for {amount}/month",
+      "DOWNGRADE": "Go back to the free plan",
+      "CHANGE_NOTE": "The new price applies from the next charge, on day {day}.",
+      "DOWNGRADE_NOTE": "The subscription will be canceled and the card removed. Numbers over 1 will be paused.",
+      "SUCCESS": "Plan updated.",
+      "ERROR": "Could not update the plan.",
+      "DECREASE": "Decrease",
+      "INCREASE": "Increase"
+    },
+    "CARD": {
+      "TITLE": "Credit card",
+      "NONE": "No card on file. The free plan does not need a card.",
+      "ENDING": "{brand} ending in {last4}",
+      "CHANGE": "Change card"
+    },
+    "INVOICES": {
+      "TITLE": "Invoices",
+      "EMPTY": "No invoices yet.",
+      "RECEIPT": "Receipt",
+      "STATUS": {
+        "PAID": "Paid",
+        "OVERDUE": "Overdue",
+        "PENDING": "Pending"
+      }
+    },
+    "MODAL": {
+      "SUBSCRIBE_TITLE": "Subscribe to {count} numbers",
+      "UPDATE_CARD_TITLE": "Change card",
+      "SUMMARY_TODAY": "Today: charge of {amount}.",
+      "SUMMARY_RECURRING": "Then: {amount} on day {day} of every month until you cancel.",
+      "CARD_SECTION": "Card details",
+      "HOLDER_NAME": "Name on card",
+      "NUMBER": "Card number",
+      "EXPIRY_MONTH": "Month (MM)",
+      "EXPIRY_YEAR": "Year (YYYY)",
+      "CVV": "CVV",
+      "HOLDER_SECTION": "Cardholder details",
+      "CPF_CNPJ": "CPF or CNPJ",
+      "PHONE": "Mobile phone",
+      "POSTAL_CODE": "Postal code",
+      "ADDRESS_NUMBER": "Address number",
+      "CONFIRM_SUBSCRIBE": "Confirm subscription",
+      "CONFIRM_CARD": "Save card",
+      "SECURITY_NOTE": "Card details go straight to Asaas, our payment processor. We only keep the brand and the last 4 digits.",
+      "SUBSCRIBE_SUCCESS": "Subscription created.",
+      "CARD_SUCCESS": "Card updated.",
+      "ERROR": "Could not process the card."
+    }
   }
 }
