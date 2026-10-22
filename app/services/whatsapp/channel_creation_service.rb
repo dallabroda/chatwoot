@@ -28,7 +28,7 @@ class Whatsapp::ChannelCreationService
   def validate_subscription_limit!
     return if @account.can_add_whatsapp_number?
 
-    raise StandardError, 'Limite de conexões WhatsApp atingido. Faça upgrade do seu plano na aba Meu Plano para adicionar mais números.'
+    raise StandardError, 'Limite de conexões WhatsApp atingido. Contrate mais números em Configurações → Cobrança.'
   end
 
   def find_existing_channel

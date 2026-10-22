@@ -198,6 +198,22 @@ class Account < ApplicationRecord
     clear_unread_conversation_counts_cache
   end
 
+  def current_subscription
+    account_subscription || create_account_subscription!(allowed_waba_count: 1, status: 'free', monthly_amount_cents: 0)
+  end
+
+  # Official Cloud API numbers plus unofficial QR (Evolution) numbers
+  def total_whatsapp_inboxes_count
+    evolution_qr_count = Channel::Api.where(account_id: id)
+                                     .where("additional_attributes->>'connection_type' = 'evolution_qr'")
+                                     .count
+    whatsapp_channels.count + evolution_qr_count
+  end
+
+  def can_add_whatsapp_number?
+    current_subscription.can_connect_whatsapp?(total_whatsapp_inboxes_count)
+  end
+
   private
 
   def notify_creation
@@ -238,23 +254,6 @@ class Account < ApplicationRecord
     errors.add(:support_email, I18n.t('errors.account.support_email.invalid')) if parsed.blank?
   rescue Mail::Field::ParseError, Mail::Field::IncompleteParseError
     errors.add(:support_email, I18n.t('errors.account.support_email.invalid'))
-  end
-
-  def current_subscription
-    account_subscription || create_account_subscription!(allowed_waba_count: 1, status: 'free', monthly_amount_cents: 0)
-  end
-
-  def total_whatsapp_inboxes_count
-    # Contabiliza WhatsApp Cloud API oficial + WhatsApp Evolution QR não-oficial
-    whatsapp_cloud_count = whatsapp_channels.count
-    evolution_qr_count = inboxes.joins("INNER JOIN channels ON channels.id = inboxes.channel_id AND channels.type = 'Channel::Api'")
-                                .where("channels.additional_attributes->>'connection_type' = 'evolution_qr'").count
-
-    whatsapp_cloud_count + evolution_qr_count
-  end
-
-  def can_add_whatsapp_number?
-    current_subscription.can_connect_whatsapp?(total_whatsapp_inboxes_count)
   end
 
   def remove_account_sequences

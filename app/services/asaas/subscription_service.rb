@@ -9,6 +9,7 @@ class Asaas::SubscriptionService
   def subscribe(total_numbers:, card_params:, holder_params:)
     total_numbers = total_numbers.to_i
     raise ArgumentError, 'Total de números deve ser pelo menos 2 para plano pago' if total_numbers < 2
+    raise ArgumentError, 'Já existe uma assinatura ativa. Ajuste a quantidade de números em vez de assinar de novo.' if account.current_subscription.asaas_subscription_id.present?
 
     monthly_value_cents = AccountSubscription.calculate_monthly_amount(total_numbers)
     monthly_value_reais = (monthly_value_cents / 100.0).round(2)
@@ -67,20 +68,23 @@ class Asaas::SubscriptionService
         allowed_waba_count: 1,
         status: 'free',
         monthly_amount_cents: 0,
-        asaas_subscription_id: nil
+        asaas_subscription_id: nil,
+        credit_card_last4: nil,
+        credit_card_brand: nil,
+        next_due_date: nil
       )
       return sub
     end
 
+    raise ArgumentError, 'Assine um plano com cartão antes de contratar mais números.' if sub.asaas_subscription_id.blank?
+
     new_cents = AccountSubscription.calculate_monthly_amount(new_total_numbers)
     new_reais = (new_cents / 100.0).round(2)
 
-    if sub.asaas_subscription_id.present?
-      client.put("/subscriptions/#{sub.asaas_subscription_id}", {
-        value: new_reais,
-        updatePendingPayments: true
-      })
-    end
+    client.put("/subscriptions/#{sub.asaas_subscription_id}", {
+      value: new_reais,
+      updatePendingPayments: true
+    })
 
     sub.update!(
       allowed_waba_count: new_total_numbers,

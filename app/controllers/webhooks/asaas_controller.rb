@@ -26,10 +26,10 @@ class Webhooks::AsaasController < ActionController::API
 
   def validate_webhook_token
     token = ENV.fetch('ASAAS_WEBHOOK_TOKEN', nil)
-    return if token.blank?
+    header_token = request.headers['asaas-access-token'].to_s
+    return if token.present? && ActiveSupport::SecurityUtils.secure_compare(token, header_token)
 
-    header_token = request.headers['asaas-access-token']
-    head :unauthorized unless ActiveSupport::SecurityUtils.secure_compare(token, header_token.to_s)
+    head :unauthorized
   end
 
   def handle_payment_success(payment)
@@ -62,7 +62,8 @@ class Webhooks::AsaasController < ActionController::API
     return if sub_id.blank?
 
     sub = AccountSubscription.find_by(asaas_subscription_id: sub_id)
-    sub&.update!(status: 'canceled', allowed_waba_count: 1, monthly_amount_cents: 0)
+    sub&.update!(status: 'canceled', allowed_waba_count: 1, monthly_amount_cents: 0, asaas_subscription_id: nil,
+                 credit_card_last4: nil, credit_card_brand: nil, next_due_date: nil)
   end
 
   def find_subscription(payment)
