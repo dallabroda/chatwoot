@@ -51,6 +51,9 @@ class Channel::TwilioSms < ApplicationRecord
 
   enum medium: { sms: 0, whatsapp: 1 }
 
+  before_create -> { account.ensure_whatsapp_number_available! }, if: :whatsapp?
+  after_create_commit -> { account.current_subscription.start_trial! }, if: :whatsapp?
+
   def name
     medium == 'sms' ? 'Twilio SMS' : 'Whatsapp'
   end

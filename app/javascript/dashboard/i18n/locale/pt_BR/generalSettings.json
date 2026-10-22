@@ -169,7 +169,7 @@
     "OPEN_BILLING": "Abrir faturamento",
     "WHATSAPP_PLAN_BANNER": {
       "TRIAL": "Período de teste: você pode conectar até {limit} números de WhatsApp até {date}.",
-      "PAUSED": "{count} número(s) de WhatsApp pausado(s) porque o período de teste terminou. Assine para reativar.",
+      "PAUSED": "{count} número(s) de WhatsApp pausado(s): passou do limite do plano (teste encerrado ou pagamento pendente).",
       "OPEN_PLANS": "Ver planos"
     }
   },

@@ -30,6 +30,9 @@ class Channel::Api < ApplicationRecord
   include WebhookSecretable
   validate :ensure_valid_agent_reply_time_window
   validates :webhook_url, length: { maximum: Limits::URL_LENGTH_LIMIT }
+  EVOLUTION_IDENTITY_KEYS = %w[connection_type evolution_instance_name risk_accepted_at risk_accepted_by].freeze
+
+  before_update :preserve_evolution_identity
   after_create_commit -> { account.current_subscription.start_trial! }, if: :evolution_qr?
   after_destroy :cleanup_evolution_instance, if: :evolution_qr?
 
@@ -42,6 +45,18 @@ class Channel::Api < ApplicationRecord
   end
 
   private
+
+  # Settings forms replace the whole hash; never let an edit drop or alter what makes this a QR number,
+  # otherwise it would silently stop counting towards the plan's number limit.
+  def preserve_evolution_identity
+    previous = additional_attributes_in_database || {}
+    return unless previous['connection_type'] == 'evolution_qr'
+
+    current = additional_attributes || {}
+    current = current.merge(previous.slice(*EVOLUTION_IDENTITY_KEYS))
+    current['connection_state'] ||= previous['connection_state']
+    self.additional_attributes = current
+  end
 
   def cleanup_evolution_instance
     instance_name = additional_attributes&.dig('evolution_instance_name')

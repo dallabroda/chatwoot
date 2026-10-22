@@ -173,7 +173,7 @@ class Inbox < ApplicationRecord
 
   # Over the plan's number limit (trial ended without a subscription): no sending or receiving
   def whatsapp_number_paused?
-    return false unless whatsapp? || evolution_qr?
+    return false unless whatsapp? || evolution_qr? || twilio_whatsapp?
 
     account.paused_whatsapp_inbox_ids.include?(id)
   end

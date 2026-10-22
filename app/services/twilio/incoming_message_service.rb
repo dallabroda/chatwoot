@@ -7,6 +7,7 @@ class Twilio::IncomingMessageService
 
   def perform
     return if twilio_channel.blank?
+    return if twilio_channel.inbox&.whatsapp_number_paused?
 
     set_contact
     set_conversation

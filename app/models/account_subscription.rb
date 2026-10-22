@@ -22,14 +22,16 @@ class AccountSubscription < ApplicationRecord
   end
 
   # Numbers usable right now: what was paid for, or the trial allowance while the trial runs.
+  # An overdue subscription falls back to the free number until the payment goes through.
   def effective_waba_limit
     return allowed_waba_count if paid?
 
-    in_trial? ? [allowed_waba_count, TRIAL_WABA_LIMIT].max : allowed_waba_count
+    base_limit = past_due? ? 1 : allowed_waba_count
+    in_trial? ? [base_limit, TRIAL_WABA_LIMIT].max : base_limit
   end
 
   def paid?
-    asaas_subscription_id.present? && %w[active past_due].include?(status)
+    asaas_subscription_id.present? && status == 'active'
   end
 
   def trial_ends_at

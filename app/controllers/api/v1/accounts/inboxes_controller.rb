@@ -32,7 +32,7 @@ class Api::V1::Accounts::InboxesController < Api::V1::Accounts::BaseController
 
   def create
     if permitted_params.dig(:channel, :type) == 'whatsapp' && !Current.account.can_add_whatsapp_number?
-      return render json: { error: 'Limite de conexões WhatsApp atingido. Contrate mais números em Configurações → Cobrança.' },
+      return render json: { error: I18n.t('errors.whatsapp.number_limit_reached') },
                     status: :payment_required
     end
 

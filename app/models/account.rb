@@ -24,6 +24,8 @@
 #
 
 class Account < ApplicationRecord
+  class WhatsappNumberLimitReached < StandardError; end
+
   # used for multi-flag bitset columns
   include FlagShihTzu
   include Reportable
@@ -205,14 +207,20 @@ class Account < ApplicationRecord
     )
   end
 
-  # Official Cloud API numbers plus unofficial QR (Evolution) numbers, oldest first
+  # Every WhatsApp number: official Cloud API/360dialog, Twilio WhatsApp and unofficial QR (Evolution), oldest first
   def whatsapp_number_inboxes
     evolution_qr_channel_ids = Channel::Api.where(account_id: id)
                                            .where("additional_attributes->>'connection_type' = 'evolution_qr'")
                                            .select(:id)
+    twilio_whatsapp_channel_ids = Channel::TwilioSms.where(account_id: id, medium: :whatsapp).select(:id)
     inboxes.where(channel_type: 'Channel::Whatsapp')
            .or(inboxes.where(channel_type: 'Channel::Api', channel_id: evolution_qr_channel_ids))
+           .or(inboxes.where(channel_type: 'Channel::TwilioSms', channel_id: twilio_whatsapp_channel_ids))
            .order(:created_at, :id)
+  end
+
+  def ensure_whatsapp_number_available!
+    raise WhatsappNumberLimitReached, I18n.t('errors.whatsapp.number_limit_reached') unless can_add_whatsapp_number?
   end
 
   def total_whatsapp_inboxes_count

@@ -169,7 +169,7 @@
     "OPEN_BILLING": "Open billing",
     "WHATSAPP_PLAN_BANNER": {
       "TRIAL": "Free trial: you can connect up to {limit} WhatsApp numbers until {date}.",
-      "PAUSED": "{count} WhatsApp number(s) paused because the free trial ended. Subscribe to reactivate.",
+      "PAUSED": "{count} WhatsApp number(s) paused: over your plan limit (trial ended or payment overdue).",
       "OPEN_PLANS": "See plans"
     }
   },
