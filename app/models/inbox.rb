@@ -167,6 +167,17 @@ class Inbox < ApplicationRecord
     channel_type == 'Channel::Whatsapp'
   end
 
+  def evolution_qr?
+    api? && channel.evolution_qr?
+  end
+
+  # Over the plan's number limit (trial ended without a subscription): no sending or receiving
+  def whatsapp_number_paused?
+    return false unless whatsapp? || evolution_qr?
+
+    account.paused_whatsapp_inbox_ids.include?(id)
+  end
+
   def twilio_whatsapp?
     channel_type == 'Channel::TwilioSms' && channel.medium == 'whatsapp'
   end

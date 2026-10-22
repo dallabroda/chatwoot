@@ -79,6 +79,7 @@ class Message < ApplicationRecord
   validates :content_type, presence: true
   validates :content, length: { maximum: 150_000 }
   validates :processed_message_content, length: { maximum: 150_000 }
+  validate :whatsapp_number_not_paused, on: :create
 
   # when you have a temperory id in your frontend and want it echoed back via action cable
   attr_accessor :echo_id
@@ -293,6 +294,13 @@ class Message < ApplicationRecord
   end
 
   private
+
+  def whatsapp_number_paused
+    return if activity? || inbox.blank?
+    return unless inbox.whatsapp_number_paused?
+
+    errors.add(:base, I18n.t('errors.whatsapp.number_paused'))
+  end
 
   def prevent_message_flooding
     # Added this to cover the validation specs in messages

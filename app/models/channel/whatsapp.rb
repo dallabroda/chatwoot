@@ -42,6 +42,7 @@ class Channel::Whatsapp < ApplicationRecord
   after_update_commit :log_credentials_transfer, if: :saved_change_to_provider_config?
   before_destroy :teardown_webhooks
   after_commit :setup_webhooks, on: :create, if: :should_auto_setup_webhooks?
+  after_create_commit { account.current_subscription.start_trial! }
 
   def name
     'Whatsapp'

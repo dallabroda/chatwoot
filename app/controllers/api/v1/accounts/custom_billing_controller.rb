@@ -15,7 +15,11 @@ class Api::V1::Accounts::CustomBillingController < Api::V1::Accounts::BaseContro
       credit_card_last4: sub.credit_card_last4,
       credit_card_brand: sub.credit_card_brand,
       next_due_date: sub.next_due_date,
-      can_add_more: Current.account.can_add_whatsapp_number?
+      can_add_more: Current.account.can_add_whatsapp_number?,
+      effective_waba_limit: sub.effective_waba_limit,
+      in_trial: sub.in_trial?,
+      trial_ends_at: sub.trial_ends_at,
+      paused_inbox_ids: Current.account.paused_whatsapp_inbox_ids
     }
   end
 

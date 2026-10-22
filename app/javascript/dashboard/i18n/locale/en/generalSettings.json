@@ -166,7 +166,12 @@
     "PAYMENT_PENDING_AGENT": "Your account payment is past due. Please contact your administrator to resolve it.",
     "UPGRADE": "Upgrade to continue using Chatwoot",
     "LIMITS_UPGRADE": "Your account has exceeded the usage limits, please upgrade your plan to continue using Chatwoot",
-    "OPEN_BILLING": "Open billing"
+    "OPEN_BILLING": "Open billing",
+    "WHATSAPP_PLAN_BANNER": {
+      "TRIAL": "Free trial: you can connect up to {limit} WhatsApp numbers until {date}.",
+      "PAUSED": "{count} WhatsApp number(s) paused because the free trial ended. Subscribe to reactivate.",
+      "OPEN_PLANS": "See plans"
+    }
   },
   "FORMS": {
     "MULTISELECT": {

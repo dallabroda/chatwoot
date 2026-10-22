@@ -199,19 +199,33 @@ class Account < ApplicationRecord
   end
 
   def current_subscription
-    account_subscription || create_account_subscription!(allowed_waba_count: 1, status: 'free', monthly_amount_cents: 0)
+    account_subscription || create_account_subscription!(
+      allowed_waba_count: 1, status: 'free', monthly_amount_cents: 0,
+      trial_started_at: whatsapp_number_inboxes.minimum(:created_at)
+    )
   end
 
-  # Official Cloud API numbers plus unofficial QR (Evolution) numbers
+  # Official Cloud API numbers plus unofficial QR (Evolution) numbers, oldest first
+  def whatsapp_number_inboxes
+    evolution_qr_channel_ids = Channel::Api.where(account_id: id)
+                                           .where("additional_attributes->>'connection_type' = 'evolution_qr'")
+                                           .select(:id)
+    inboxes.where(channel_type: 'Channel::Whatsapp')
+           .or(inboxes.where(channel_type: 'Channel::Api', channel_id: evolution_qr_channel_ids))
+           .order(:created_at, :id)
+  end
+
   def total_whatsapp_inboxes_count
-    evolution_qr_count = Channel::Api.where(account_id: id)
-                                     .where("additional_attributes->>'connection_type' = 'evolution_qr'")
-                                     .count
-    whatsapp_channels.count + evolution_qr_count
+    whatsapp_number_inboxes.count
   end
 
   def can_add_whatsapp_number?
     current_subscription.can_connect_whatsapp?(total_whatsapp_inboxes_count)
+  end
+
+  # Numbers beyond what the plan (or trial) allows stop sending and receiving, newest first
+  def paused_whatsapp_inbox_ids
+    whatsapp_number_inboxes.pluck(:id).drop(current_subscription.effective_waba_limit)
   end
 
   private

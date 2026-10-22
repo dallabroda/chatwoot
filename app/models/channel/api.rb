@@ -30,7 +30,7 @@ class Channel::Api < ApplicationRecord
   include WebhookSecretable
   validate :ensure_valid_agent_reply_time_window
   validates :webhook_url, length: { maximum: Limits::URL_LENGTH_LIMIT }
-
+  after_create_commit -> { account.current_subscription.start_trial! }, if: :evolution_qr?
   after_destroy :cleanup_evolution_instance, if: :evolution_qr?
 
   def name
