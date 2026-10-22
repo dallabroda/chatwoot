@@ -318,12 +318,17 @@ onMounted(() => {
               type="button"
               @click="handleApplyPlan"
               :disabled="isCurrentSlotCount || submitting"
-              class="px-6 py-2.5 rounded-xl font-semibold text-sm bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center gap-2"
+              class="px-6 py-3 rounded-xl font-bold text-sm shadow-md transition flex items-center justify-center gap-2"
+              :style="isCurrentSlotCount ? 'background-color: #f1f5f9; color: #94a3b8; border: 1px solid #cbd5e1; cursor: not-allowed;' : 'background-color: #1f93ff; color: #ffffff; cursor: pointer;'"
             >
               <span v-if="submitting" class="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
-              <span v-if="isCurrentSlotCount">Plano Selecionado é o Atual</span>
-              <span v-else-if="selectedSlots > 1 && !hasActiveCard">Continuar para o Pagamento</span>
-              <span v-else>Confirmar Alteração de Plano</span>
+              <span v-if="isCurrentSlotCount">Plano Selecionado é o Atual ({{ summary.allowed_waba_count }} número)</span>
+              <span v-else-if="selectedSlots > 1 && !hasActiveCard">
+                💳 Comprar / Assinar {{ selectedSlots }} Números (R$ {{ calculatedPrice }},00 / mês)
+              </span>
+              <span v-else>
+                Confirmar Alteração para {{ selectedSlots }} Números (R$ {{ calculatedPrice }},00 / mês)
+              </span>
             </button>
           </div>
         </div>
@@ -334,7 +339,7 @@ onMounted(() => {
         <!-- Card 3: Método de Pagamento (Cartão) -->
         <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm">
           <h4 class="text-sm font-bold text-slate-800 dark:text-slate-100 mb-3 flex items-center gap-2">
-            <i class="i-lucide-credit-card text-emerald-600" />
+            <i class="i-lucide-credit-card text-woot-500" />
             Cartão de Crédito
           </h4>
 
@@ -357,7 +362,7 @@ onMounted(() => {
             <button
               type="button"
               @click="openUpdateCardModal"
-              class="mt-4 w-full py-1.5 px-3 rounded-lg text-xs font-semibold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-700 transition"
+              class="mt-4 w-full py-2 px-3 rounded-lg text-xs font-semibold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-700 transition"
             >
               Trocar Cartão de Crédito
             </button>
@@ -368,6 +373,14 @@ onMounted(() => {
             <p class="text-xs text-slate-500 dark:text-slate-400">
               Você está no plano gratuito. Nenhum cartão é necessário para gerenciar 1 número.
             </p>
+            <button
+              type="button"
+              @click="() => { selectedSlots = 2; handleApplyPlan(); }"
+              class="mt-3 inline-flex items-center justify-center px-4 py-2 rounded-lg text-xs font-bold shadow-sm transition"
+              style="background-color: #1f93ff; color: #ffffff;"
+            >
+              + Contratar Mais Números
+            </button>
           </div>
         </div>
 
@@ -564,10 +577,11 @@ onMounted(() => {
             <button
               type="submit"
               :disabled="submitting"
-              class="px-5 py-2 rounded-xl text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm disabled:opacity-50 transition flex items-center gap-2"
+              class="px-5 py-2.5 rounded-xl text-xs font-bold shadow-md transition flex items-center gap-2 cursor-pointer"
+              style="background-color: #1f93ff; color: #ffffff;"
             >
               <span v-if="submitting" class="animate-spin rounded-full h-3 w-3 border-b-2 border-white" />
-              <span>{{ modalMode === 'update_card' ? 'Salvar Cartão' : 'Confirmar Assinatura' }}</span>
+              <span>{{ modalMode === 'update_card' ? 'Salvar Cartão' : `Confirmar Assinatura (R$ ${calculatedPrice},00 / mês)` }}</span>
             </button>
           </div>
         </form>
