@@ -24,7 +24,7 @@ class Api::V1::Accounts::ContactsController < Api::V1::Accounts::BaseController
   def search
     render json: { error: 'Specify search string with parameter q' }, status: :unprocessable_entity if params[:q].blank? && return
 
-    contacts = Current.account.contacts.where(
+    contacts = visible_contacts.where(
       'name ILIKE :search OR email ILIKE :search OR phone_number ILIKE :search OR contacts.identifier LIKE :search',
       search: "%#{params[:q].strip}%"
     )
@@ -51,7 +51,7 @@ class Api::V1::Accounts::ContactsController < Api::V1::Accounts::BaseController
 
   # returns online contacts
   def active
-    contacts = Current.account.contacts.where(id: ::OnlineStatusTracker
+    contacts = visible_contacts.where(id: ::OnlineStatusTracker
                   .get_available_contact_ids(Current.account.id))
     @contacts = fetch_contacts(contacts)
     @contacts_count = @contacts.total_count
@@ -61,8 +61,8 @@ class Api::V1::Accounts::ContactsController < Api::V1::Accounts::BaseController
 
   def filter
     result = ::Contacts::FilterService.new(Current.account, Current.user, params.permit!).perform
-    contacts = result[:contacts]
-    @contacts_count = result[:count]
+    contacts = result[:contacts].merge(visible_contacts)
+    @contacts_count = contacts.count
     @contacts = fetch_contacts(contacts)
   rescue CustomExceptions::CustomFilter::InvalidAttribute,
          CustomExceptions::CustomFilter::InvalidOperator,
@@ -119,11 +119,15 @@ class Api::V1::Accounts::ContactsController < Api::V1::Accounts::BaseController
 
   private
 
+  def visible_contacts
+    Current.account.contacts.visible_to(Current.user, Current.account)
+  end
+
   # TODO: Move this to a finder class
   def resolved_contacts
     return @resolved_contacts if @resolved_contacts
 
-    @resolved_contacts = Current.account.contacts.resolved_contacts(use_crm_v2: Current.account.feature_enabled?('crm_v2'))
+    @resolved_contacts = visible_contacts.resolved_contacts(use_crm_v2: Current.account.feature_enabled?('crm_v2'))
 
     @resolved_contacts = @resolved_contacts.tagged_with(params[:labels], any: true) if params[:labels].present?
     @resolved_contacts
@@ -209,7 +213,7 @@ class Api::V1::Accounts::ContactsController < Api::V1::Accounts::BaseController
   end
 
   def fetch_contact
-    contact_scope = Current.account.contacts
+    contact_scope = visible_contacts
     contact_scope = contact_scope.includes(contact_inboxes: [:inbox]) if @include_contact_inboxes
     @contact = contact_scope.find(params[:id])
   end

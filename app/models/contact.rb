@@ -179,6 +179,14 @@ class Contact < ApplicationRecord
     where("contacts.email <> '' OR contacts.phone_number <> '' OR contacts.identifier <> ''")
   end
 
+  # Administrators see every contact; everyone else only contacts reachable through an inbox they belong to.
+  def self.visible_to(user, account)
+    return all if account.account_users.find_by(user: user)&.administrator?
+
+    member_inbox_ids = account.inboxes.joins(:inbox_members).where(inbox_members: { user_id: user.id }).select(:id)
+    where(id: ContactInbox.where(inbox_id: member_inbox_ids).select(:contact_id))
+  end
+
   def discard_invalid_attrs
     phone_number_format
     email_format

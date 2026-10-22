@@ -164,7 +164,7 @@ class SearchService
   end
 
   def filter_contacts
-    contacts_query = current_account.contacts.where(
+    contacts_query = current_account.contacts.visible_to(current_user, current_account).where(
       "name ILIKE :search OR email ILIKE :search OR phone_number
       ILIKE :search OR identifier ILIKE :search", search: "%#{search_query}%"
     )
