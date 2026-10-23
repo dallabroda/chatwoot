@@ -83,6 +83,8 @@ en:
       cannot_revoke_current: You cannot revoke the current session.
 
   errors:
+    password_reset:
+      invalid_token: 'This link is no longer valid. Every new invite or password request creates a new link and cancels the previous ones. Open the most recent email or request a new link.'
     notification_subscription:
       voip_attributes_required: A VoIP push subscription needs a device_id and a push_token
     account:

@@ -152,7 +152,10 @@ export const setNewPassword = async ({
     setAuthCredentials(response);
     return response.data.data;
   } catch (error) {
-    return throwErrorMessage(error);
+    // Keep the error code so the page can tell an expired/replaced link from a weak password
+    const apiError = new Error(parseAPIErrorResponse(error));
+    apiError.code = error?.response?.data?.error_code;
+    throw apiError;
   }
 };
 

@@ -20,25 +20,33 @@ class DeviseOverrides::PasswordsController < Devise::PasswordsController
     original_token = params[:reset_password_token]
     reset_password_token = Devise.token_generator.digest(self, :reset_password_token, original_token)
     @recoverable = User.find_by(reset_password_token: reset_password_token)
-    if @recoverable && reset_password_and_confirmation(@recoverable)
-      return render_mfa_sign_in_required if mfa_sign_in_required?(@recoverable)
+    # Every invite/reset email issues a new token and voids the previous one, so old links end up here
+    return render_invalid_reset_token unless @recoverable&.reset_password_period_valid?
+    return render_invalid_password unless reset_password_and_confirmation(@recoverable)
+    return render_mfa_sign_in_required if mfa_sign_in_required?(@recoverable)
 
-      send_auth_headers(@recoverable)
-      render partial: 'devise/auth', formats: [:json], locals: { resource: @recoverable }
-    else
-      render json: { message: 'Invalid token', redirect_url: '/' }, status: :unprocessable_entity
-    end
+    send_auth_headers(@recoverable)
+    render partial: 'devise/auth', formats: [:json], locals: { resource: @recoverable }
   end
 
   private
 
   def reset_password_and_confirmation(recoverable)
+    # A password that fails validation must come back as a readable error, not a server error
+    return false unless recoverable.reset_password(params[:password], params[:password_confirmation])
+
     recoverable.confirm unless recoverable.confirmed? # confirm if user resets password without confirming anytime before
-    recoverable.reset_password(params[:password], params[:password_confirmation])
-    recoverable.reset_password_token = nil
-    recoverable.confirmation_token = nil
-    recoverable.reset_password_sent_at = nil
-    recoverable.save!
+    recoverable.update!(reset_password_token: nil, confirmation_token: nil, reset_password_sent_at: nil)
+  end
+
+  def render_invalid_reset_token
+    render json: { message: I18n.t('errors.password_reset.invalid_token'), error_code: 'invalid_token' },
+           status: :unprocessable_entity
+  end
+
+  def render_invalid_password
+    render json: { message: @recoverable.errors.full_messages.to_sentence, error_code: 'invalid_password' },
+           status: :unprocessable_entity
   end
 
   def build_response(message, status)

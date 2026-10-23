@@ -67,6 +67,8 @@ pt_BR:
     sessions:
       cannot_revoke_current: Você não pode revogar a sessão atual.
   errors:
+    password_reset:
+      invalid_token: 'Este link não é mais válido. Cada novo convite ou pedido de senha gera um link novo e cancela os anteriores. Abra o e-mail mais recente ou peça um novo link.'
     notification_subscription:
       voip_attributes_required: Uma assinatura push VoIP precisa de um device_id e um push_token
     account:
