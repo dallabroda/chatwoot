@@ -38,6 +38,11 @@
       "API": {
         "ERROR_MESSAGE": "SSO authentication failed. Please check your credentials and try again."
       }
+    },
+    "AUTH0": {
+      "GOOGLE": "Continue with Google",
+      "MICROSOFT": "Continue with Microsoft",
+      "GITHUB": "Continue with GitHub"
     }
   }
 }

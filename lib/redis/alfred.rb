@@ -1,5 +1,7 @@
 # refer : https://redis.io/commands
 
+# TODO(credtech): split this up; tracked in dallabroda/credtech issues (CI lint baseline 2026-10-23)
+# rubocop:disable Metrics/ModuleLength
 module Redis::Alfred
   include Redis::RedisKeys
 
@@ -166,3 +168,4 @@ module Redis::Alfred
     end
   end
 end
+# rubocop:enable Metrics/ModuleLength

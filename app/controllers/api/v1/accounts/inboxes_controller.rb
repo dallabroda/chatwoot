@@ -1,3 +1,5 @@
+# TODO(credtech): split this up; tracked in dallabroda/credtech issues (CI lint baseline 2026-10-23)
+# rubocop:disable Metrics/ClassLength
 class Api::V1::Accounts::InboxesController < Api::V1::Accounts::BaseController
   include Api::V1::InboxesHelper
   before_action :fetch_inbox, except: [:index, :create]
@@ -223,5 +225,6 @@ class Api::V1::Accounts::InboxesController < Api::V1::Accounts::BaseController
     channel_type.constantize.const_defined?(:EDITABLE_ATTRS) ? channel_type.constantize::EDITABLE_ATTRS.presence : []
   end
 end
+# rubocop:enable Metrics/ClassLength
 
 Api::V1::Accounts::InboxesController.prepend_mod_with('Api::V1::Accounts::InboxesController')

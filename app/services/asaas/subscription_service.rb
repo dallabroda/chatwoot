@@ -6,10 +6,14 @@ class Asaas::SubscriptionService
     @client = Asaas::Client.new
   end
 
+  # TODO(credtech): split this up; tracked in dallabroda/credtech issues (CI lint baseline 2026-10-23)
+  # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
   def subscribe(total_numbers:, card_params:, holder_params:)
     total_numbers = total_numbers.to_i
     raise ArgumentError, 'Total de números deve ser pelo menos 2 para plano pago' if total_numbers < 2
-    raise ArgumentError, 'Já existe uma assinatura ativa. Ajuste a quantidade de números em vez de assinar de novo.' if account.current_subscription.asaas_subscription_id.present?
+    if account.current_subscription.asaas_subscription_id.present?
+      raise ArgumentError, 'Já existe uma assinatura ativa. Ajuste a quantidade de números em vez de assinar de novo.'
+    end
 
     monthly_value_cents = AccountSubscription.calculate_monthly_amount(total_numbers)
     monthly_value_reais = (monthly_value_cents / 100.0).round(2)
@@ -57,7 +61,10 @@ class Asaas::SubscriptionService
 
     sub
   end
+  # rubocop:enable Metrics/AbcSize, Metrics/MethodLength
 
+  # TODO(credtech): split this up; tracked in dallabroda/credtech issues (CI lint baseline 2026-10-23)
+  # rubocop:disable Metrics/MethodLength
   def update_slots(new_total_numbers)
     new_total_numbers = new_total_numbers.to_i
     sub = account.current_subscription
@@ -83,10 +90,10 @@ class Asaas::SubscriptionService
     new_reais = (new_cents / 100.0).round(2)
 
     client.put("/subscriptions/#{sub.asaas_subscription_id}", {
-      value: new_reais,
-      description: subscription_description(new_total_numbers),
-      updatePendingPayments: true
-    })
+                 value: new_reais,
+                 description: subscription_description(new_total_numbers),
+                 updatePendingPayments: true
+               })
 
     sub.update!(
       allowed_waba_count: new_total_numbers,
@@ -94,6 +101,7 @@ class Asaas::SubscriptionService
     )
     sub
   end
+  # rubocop:enable Metrics/MethodLength
 
   def update_card(card_params)
     sub = account.current_subscription
@@ -124,6 +132,8 @@ class Asaas::SubscriptionService
     "Assinatura Cred Chat - #{total_numbers} números de WhatsApp"
   end
 
+  # TODO(credtech): split this up; tracked in dallabroda/credtech issues (CI lint baseline 2026-10-23)
+  # rubocop:disable Metrics/AbcSize
   def find_or_create_customer(holder_params)
     sub = account.current_subscription
     return sub.asaas_customer_id if sub.asaas_customer_id.present?
@@ -144,6 +154,7 @@ class Asaas::SubscriptionService
     response = client.post('/customers', customer_payload)
     response['id']
   end
+  # rubocop:enable Metrics/AbcSize
 
   def cancel_existing_subscription(sub)
     client.delete("/subscriptions/#{sub.asaas_subscription_id}")

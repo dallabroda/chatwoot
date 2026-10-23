@@ -27,7 +27,7 @@ const isAChatwootInstance = computed(
 const isShopifySignup = computed(() => Boolean(props.shopifyPendingInstall));
 const showAuth0Signup = computed(() =>
   Boolean(
-    window.chatwootConfig.auth0Domain && window.chatwootConfig.auth0ClientId
+    window.chatwootConfig?.auth0Domain && window.chatwootConfig?.auth0ClientId
   )
 );
 const loginRoute = computed(() => {

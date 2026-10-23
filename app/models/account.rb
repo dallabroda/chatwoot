@@ -23,6 +23,8 @@
 #  index_accounts_on_status  (status)
 #
 
+# TODO(credtech): split this up; tracked in dallabroda/credtech issues (CI lint baseline 2026-10-23)
+# rubocop:disable Metrics/ClassLength
 class Account < ApplicationRecord
   class WhatsappNumberLimitReached < StandardError; end
 
@@ -283,6 +285,7 @@ class Account < ApplicationRecord
     ActiveRecord::Base.connection.exec_query("drop sequence IF EXISTS conv_dpid_seq_#{id}")
   end
 end
+# rubocop:enable Metrics/ClassLength
 
 Account.prepend_mod_with('Account')
 Account.prepend_mod_with('Account::PlanUsageAndLimits')

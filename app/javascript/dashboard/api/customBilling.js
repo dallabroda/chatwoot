@@ -16,7 +16,9 @@ class CustomBillingAPI extends ApiClient {
   }
 
   updateSlots(totalNumbers) {
-    return axios.post(`${this.url}/update_slots`, { total_numbers: totalNumbers });
+    return axios.post(`${this.url}/update_slots`, {
+      total_numbers: totalNumbers,
+    });
   }
 
   updateCard(cardPayload) {

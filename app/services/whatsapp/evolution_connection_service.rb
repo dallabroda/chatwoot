@@ -20,15 +20,15 @@ class Whatsapp::EvolutionConnectionService
   def link_chatwoot(access_token:, chatwoot_url:)
     inbox_name = @inbox_name.presence || @channel.inbox&.name || @channel.reload.inbox&.name
     response = post("/chatwoot/set/#{@instance_name}",
-                     enabled: true,
-                     accountId: @channel.account_id.to_s,
-                     token: access_token,
-                     url: chatwoot_url,
-                     signMsg: true,
-                     reopenConversation: true,
-                     conversationPending: false,
-                     nameInbox: inbox_name,
-                     autoCreate: false)
+                    enabled: true,
+                    accountId: @channel.account_id.to_s,
+                    token: access_token,
+                    url: chatwoot_url,
+                    signMsg: true,
+                    reopenConversation: true,
+                    conversationPending: false,
+                    nameInbox: inbox_name,
+                    autoCreate: false)
 
     @channel.update!(webhook_url: response['webhook_url']) if response['webhook_url'].present?
     response

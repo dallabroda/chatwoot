@@ -6,6 +6,8 @@ class Api::V1::Accounts::WhatsappEvolutionConnectionsController < Api::V1::Accou
   before_action :fetch_inbox, only: [:qr, :status, :destroy]
   rescue_from Whatsapp::EvolutionApiError, with: :render_evolution_error
 
+  # TODO(credtech): split this up; tracked in dallabroda/credtech issues (CI lint baseline 2026-10-23)
+  # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
   def create
     authorize Inbox.new(account: Current.account), :create?
     unless Current.account.can_add_whatsapp_number?
@@ -25,12 +27,12 @@ class Api::V1::Accounts::WhatsappEvolutionConnectionsController < Api::V1::Accou
         channel = Channel::Api.create!(account: Current.account)
         inbox = Current.account.inboxes.create!(name: params[:name], channel: channel)
         channel.update!(additional_attributes: {
-                           'connection_type' => 'evolution_qr',
-                           'evolution_instance_name' => instance_name,
-                           'connection_state' => 'qr_pending',
-                           'risk_accepted_at' => Time.current,
-                           'risk_accepted_by' => Current.user.email
-                         })
+                          'connection_type' => 'evolution_qr',
+                          'evolution_instance_name' => instance_name,
+                          'connection_state' => 'qr_pending',
+                          'risk_accepted_at' => Time.current,
+                          'risk_accepted_by' => Current.user.email
+                        })
         channel.reload
 
         service = Whatsapp::EvolutionConnectionService.new(channel, instance_name, inbox_name: inbox.name)
@@ -39,7 +41,11 @@ class Api::V1::Accounts::WhatsappEvolutionConnectionsController < Api::V1::Accou
         service.register_status_webhook(evolution_status_webhook_url(instance_name))
       end
     rescue StandardError => e
-      service&.delete_instance rescue nil
+      begin
+        service&.delete_instance
+      rescue StandardError
+        nil
+      end
       raise e
     end
 
@@ -49,6 +55,7 @@ class Api::V1::Accounts::WhatsappEvolutionConnectionsController < Api::V1::Accou
       qr_code: qr_response.dig('qrcode', 'base64')
     }
   end
+  # rubocop:enable Metrics/AbcSize, Metrics/MethodLength
 
   # Reconnects the same inbox (history is kept): a fresh QR from the existing session, or a brand-new
   # Evolution instance under the same name when the old one no longer exists.

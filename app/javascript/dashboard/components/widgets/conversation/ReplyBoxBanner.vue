@@ -34,7 +34,7 @@ const assignedAgent = computed(() => currentChat.value?.meta?.assignee);
 const { isAdmin } = useAdmin();
 const qrReconnectDialog = ref(null);
 const currentInbox = computed(() =>
-  store.getters['inboxes/getInbox'](currentChat.value?.inbox_id)
+  store.getters['inboxes/getInbox']?.(currentChat.value?.inbox_id)
 );
 const showQrDisconnectedBanner = computed(() => {
   const attributes = currentInbox.value?.additional_attributes;

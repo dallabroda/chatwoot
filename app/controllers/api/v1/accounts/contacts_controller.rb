@@ -1,3 +1,5 @@
+# TODO(credtech): split this up; tracked in dallabroda/credtech issues (CI lint baseline 2026-10-23)
+# rubocop:disable Metrics/ClassLength
 class Api::V1::Accounts::ContactsController < Api::V1::Accounts::BaseController
   include Sift
   sort_on :email, type: :string
@@ -226,5 +228,6 @@ class Api::V1::Accounts::ContactsController < Api::V1::Accounts::BaseController
     render json: error, status: error_status
   end
 end
+# rubocop:enable Metrics/ClassLength
 
 Api::V1::Accounts::ContactsController.prepend_mod_with('Api::V1::Accounts::ContactsController')

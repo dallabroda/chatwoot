@@ -60,7 +60,7 @@ class Asaas::Client
     return unless parsed.is_a?(Hash)
 
     if parsed['errors'].is_a?(Array)
-      parsed['errors'].map { |e| e['description'] }.join(', ')
+      parsed['errors'].pluck('description').join(', ')
     elsif parsed['message'].present?
       parsed['message']
     end

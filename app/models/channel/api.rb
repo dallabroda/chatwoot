@@ -99,8 +99,6 @@ class Channel::Api < ApplicationRecord
     Rails.logger.error "[Evolution] Failed to delete instance #{instance_name} on channel destroy: #{e.message}"
   end
 
-  private
-
   def ensure_valid_agent_reply_time_window
     return if additional_attributes['agent_reply_time_window'].blank?
     return if additional_attributes['agent_reply_time_window'].to_i.positive?
