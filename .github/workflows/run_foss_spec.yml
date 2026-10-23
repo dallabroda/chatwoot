@@ -34,7 +34,8 @@ jobs:
         # (13 High confidence) that need security-team triage before this
         # can be turned into a hard gate.
         continue-on-error: true
-        run: bundle exec brakeman -q --no-pager
+        # enterprise/ is stripped from the CredTech image, so it is not scanned
+        run: bundle exec brakeman -q --no-pager --skip-files enterprise/
       - name: Run bundle-audit
         run: |
           bundle exec bundle-audit update
