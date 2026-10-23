@@ -310,6 +310,11 @@
     }
   },
   "CONFIRM_EMAIL": "Verificando...",
+  "CONFIRM_EMAIL_PAGE": {
+    "TITLE": "Confirme seu e-mail",
+    "DESCRIPTION": "Clique no botão abaixo para confirmar seu e-mail e ativar sua conta.",
+    "BUTTON": "Confirmar meu e-mail"
+  },
   "SETTINGS": {
     "INBOXES": {
       "NEW_INBOX": "Adicionar Caixa de Entrada"
@@ -881,7 +886,7 @@
   },
   "CREATE_ACCOUNT": {
     "NO_ACCOUNT_WARNING": "Ah oh! Não conseguimos encontrar nenhuma conta. Por favor, crie uma nova conta para continuar.",
-    "NEW_ACCOUNT": "Nova conta",
+    "NEW_ACCOUNT": "Criar minha empresa",
     "SELECTOR_SUBTITLE": "Criar nova conta",
     "API": {
       "SUCCESS_MESSAGE": "Conta criada com sucesso",

@@ -34,6 +34,19 @@ const showAccountSwitcher = computed(
   () => userAccounts.value.length > 1 && currentAccount.value.name
 );
 
+// Cred Chat: a user may create one company of their own (only if they don't administer any yet)
+const canCreateAccount = computed(
+  () =>
+    globalConfig.value.createNewAccountFromDashboard &&
+    !(currentUser.value.accounts || []).some(
+      account => account.role === 'administrator'
+    )
+);
+
+const isMenuEnabled = computed(
+  () => showAccountSwitcher.value || canCreateAccount.value
+);
+
 const sortedCurrentUserAccounts = computed(() => {
   return [...(currentUser.value.accounts || [])].sort((a, b) =>
     a.name.localeCompare(b.name)
@@ -73,11 +86,11 @@ const emitNewAccount = () => {
         class="flex items-center gap-2 justify-between w-full rounded-lg px-2"
         :class="[
           isOpen && 'bg-n-alpha-1',
-          showAccountSwitcher
+          isMenuEnabled
             ? 'hover:bg-n-alpha-1 cursor-pointer'
             : 'cursor-default',
         ]"
-        @click="() => showAccountSwitcher && toggle()"
+        @click="() => isMenuEnabled && toggle()"
       >
         <span
           class="text-sm font-medium leading-5 text-n-slate-12 truncate"
@@ -87,16 +100,13 @@ const emitNewAccount = () => {
         </span>
 
         <span
-          v-if="showAccountSwitcher"
+          v-if="isMenuEnabled"
           aria-hidden="true"
           class="i-lucide-chevron-down size-4 text-n-slate-10 flex-shrink-0"
         />
       </button>
     </template>
-    <DropdownBody
-      v-if="showAccountSwitcher || isCollapsed"
-      class="min-w-80 z-50"
-    >
+    <DropdownBody v-if="isMenuEnabled || isCollapsed" class="min-w-80 z-50">
       <DropdownSection :title="t('SIDEBAR_ITEMS.SWITCH_ACCOUNT')">
         <DropdownItem
           v-for="account in sortedCurrentUserAccounts"
@@ -136,7 +146,7 @@ const emitNewAccount = () => {
           </template>
         </DropdownItem>
       </DropdownSection>
-      <DropdownItem v-if="globalConfig.createNewAccountFromDashboard">
+      <DropdownItem v-if="canCreateAccount">
         <ButtonNext
           color="slate"
           variant="faded"

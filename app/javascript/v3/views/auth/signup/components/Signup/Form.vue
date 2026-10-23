@@ -84,8 +84,12 @@ const showGoogleOAuth = computed(
 
 const isFormValid = computed(() => !v$.value.$invalid);
 
+// Cred Chat: keep the API error on screen (the toast alone disappears before people read it)
+const signupError = ref('');
+
 const performRegistration = async () => {
   isSignupInProgress.value = true;
+  signupError.value = '';
   try {
     await register({
       ...credentials,
@@ -97,6 +101,7 @@ const performRegistration = async () => {
     });
   } catch (error) {
     const errorMessage = error?.message || t('REGISTER.API.ERROR_MESSAGE');
+    signupError.value = errorMessage;
     if (globalConfig.value.hCaptchaSiteKey) {
       hCaptcha.value.reset();
       credentials.hCaptchaClientResponse = '';
@@ -185,6 +190,19 @@ const onCaptchaError = () => {
         @challenge-expired="onCaptchaError"
         @closed="onCaptchaError"
       />
+      <div
+        v-if="signupError"
+        role="alert"
+        class="rounded-lg bg-n-ruby-3 px-3 py-2.5 text-sm text-n-ruby-11"
+      >
+        {{ signupError }}
+        <router-link
+          :to="{ name: 'login' }"
+          class="font-medium underline whitespace-nowrap"
+        >
+          {{ $t('LOGIN.SUBMIT') }}
+        </router-link>
+      </div>
       <NextButton
         lg
         type="submit"

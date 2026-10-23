@@ -120,6 +120,7 @@ class User < ApplicationRecord
   before_validation :set_password_and_uid, on: :create
   after_destroy :remove_macros
   after_save :sync_user_sessions, if: :saved_change_to_tokens?
+  after_commit :send_welcome_email, if: :first_confirmation_committed?
 
   scope :order_by_full_name, -> { order('lower(name) ASC') }
 
@@ -257,6 +258,16 @@ class User < ApplicationRecord
 
   def remove_macros
     macros.personal.destroy_all
+  end
+
+  # First confirmation only (signup link, invite acceptance or verified OAuth signup), not email changes
+  def first_confirmation_committed?
+    change = previous_changes['confirmed_at']
+    change.present? && change.first.nil? && change.last.present?
+  end
+
+  def send_welcome_email
+    UserWelcomeMailer.with(account: accounts.first).welcome(self).deliver_later
   end
 end
 

@@ -310,6 +310,11 @@
     }
   },
   "CONFIRM_EMAIL": "Verifying...",
+  "CONFIRM_EMAIL_PAGE": {
+    "TITLE": "Confirm your email",
+    "DESCRIPTION": "Click the button below to confirm your email and activate your account.",
+    "BUTTON": "Confirm my email"
+  },
   "SETTINGS": {
     "INBOXES": {
       "NEW_INBOX": "Add Inbox"
@@ -881,7 +886,7 @@
   },
   "CREATE_ACCOUNT": {
     "NO_ACCOUNT_WARNING": "Uh oh! We could not find any Chatwoot accounts. Please create a new account to continue.",
-    "NEW_ACCOUNT": "New Account",
+    "NEW_ACCOUNT": "Create my company",
     "SELECTOR_SUBTITLE": "Create a new account",
     "API": {
       "SUCCESS_MESSAGE": "Account created successfully",

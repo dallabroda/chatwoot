@@ -17,6 +17,7 @@ class Api::V1::AccountsController < Api::BaseController
               CustomExceptions::Account::InvalidParams,
               CustomExceptions::Account::UserExists,
               CustomExceptions::Account::UserErrors,
+              CustomExceptions::Account::OwnedAccountLimit,
               with: :render_error_response
   rescue_from Shopify::PendingInstallation::Error, with: :render_shopify_signup_error
 

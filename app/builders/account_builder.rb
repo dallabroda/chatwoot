@@ -8,6 +8,8 @@ class AccountBuilder
     if @user.nil?
       validate_email
       validate_user
+    else
+      validate_owned_account_limit
     end
     ActiveRecord::Base.transaction do
       @account = create_account
@@ -43,10 +45,15 @@ class AccountBuilder
     end
   end
 
+  # Cred Chat: each user may own (administer) a single company; existing members can still create their own
+  def validate_owned_account_limit
+    raise OwnedAccountLimit.new({}) if @user.account_users.administrator.exists?
+  end
+
   def create_account
     @account = Account.create!(
       name: account_name,
-      locale: I18n.locale,
+      locale: ENV.fetch('DEFAULT_LOCALE', nil).presence || I18n.locale,
       custom_attributes: { 'onboarding_step' => 'account_details' }
     )
     Current.account = @account

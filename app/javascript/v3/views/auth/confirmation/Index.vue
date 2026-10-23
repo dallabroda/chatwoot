@@ -7,6 +7,8 @@ import {
 } from '../../../helpers/AuthHelper';
 import Spinner from 'shared/components/Spinner.vue';
 
+// Cred Chat: confirm only on an explicit click. Corporate mail scanners (e.g. Microsoft Safe Links)
+// open every link in the message, and auto-confirming on page load let them activate accounts.
 export default {
   components: { Spinner },
   props: {
@@ -20,11 +22,12 @@ export default {
       default: '',
     },
   },
-  mounted() {
-    this.confirmToken();
+  data() {
+    return { isConfirming: false };
   },
   methods: {
     async confirmToken() {
+      this.isConfirming = true;
       try {
         const user = await verifyPasswordToken({
           confirmationToken: this.confirmationToken,
@@ -51,9 +54,29 @@ export default {
 
 <template>
   <div
-    class="flex items-center justify-center min-h-screen h-full bg-n-background w-full"
+    class="flex items-center justify-center min-h-screen h-full bg-n-background w-full p-4"
   >
-    <Spinner color-scheme="primary" size="" />
-    <div class="ml-2 text-n-slate-11">{{ $t('CONFIRM_EMAIL') }}</div>
+    <div v-if="isConfirming" class="flex items-center">
+      <Spinner color-scheme="primary" size="" />
+      <div class="ml-2 text-n-slate-11">{{ $t('CONFIRM_EMAIL') }}</div>
+    </div>
+    <div
+      v-else
+      class="max-w-sm w-full text-center bg-n-solid-1 rounded-xl outline outline-1 outline-n-container p-8"
+    >
+      <h1 class="text-xl font-semibold text-n-slate-12">
+        {{ $t('CONFIRM_EMAIL_PAGE.TITLE') }}
+      </h1>
+      <p class="mt-2 text-sm text-n-slate-11">
+        {{ $t('CONFIRM_EMAIL_PAGE.DESCRIPTION') }}
+      </p>
+      <button
+        type="button"
+        class="mt-6 w-full rounded-lg bg-n-brand px-4 py-2.5 text-sm font-medium text-white hover:opacity-90"
+        @click="confirmToken"
+      >
+        {{ $t('CONFIRM_EMAIL_PAGE.BUTTON') }}
+      </button>
+    </div>
   </div>
 </template>

@@ -1,0 +1,20 @@
+<%
+  brand_name = global_config['BRAND_NAME'] || 'Chatwoot'
+  account_name = @account&.name
+  detail_rows = []
+  detail_rows << [t('devise_mailer.welcome.company_label'), account_name] if account_name.present?
+  detail_rows << [t('devise_mailer.welcome.email_label'), @resource.email]
+%>
+
+<%= render partial: 'devise/mailer/confirmation_body', locals: {
+  action_text: t('devise_mailer.welcome.action'),
+  action_url: frontend_url(''),
+  detail_rows: detail_rows,
+  eyebrow: t('devise_mailer.welcome.eyebrow'),
+  heading: t('devise_mailer.welcome.heading', brand_name: brand_name),
+  info_text: nil,
+  info_title: nil,
+  intro_text: t('devise_mailer.welcome.intro', brand_name: brand_name),
+  recipient_name: @resource.name.presence || @resource.email,
+  supporting_text: t('devise_mailer.welcome.supporting')
+} %>

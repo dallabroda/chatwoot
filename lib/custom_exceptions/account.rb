@@ -13,6 +13,12 @@ module CustomExceptions::Account
     end
   end
 
+  class OwnedAccountLimit < CustomExceptions::Base
+    def message
+      I18n.t('errors.signup.owned_account_limit')
+    end
+  end
+
   class UserExists < CustomExceptions::Base
     def message
       I18n.t('errors.signup.email_already_exists', email: @data[:email])

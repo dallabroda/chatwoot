@@ -100,7 +100,8 @@ en:
       disposable_email: We do not allow disposable emails
       blocked_domain: This domain is not allowed. If you believe this is a mistake, please contact support.
       invalid_email: You have entered an invalid email
-      email_already_exists: 'You have already signed up for an account with %{email}'
+      email_already_exists: 'This email (%{email}) already has access to Cred Chat. Sign in with it and create your company from the accounts menu.'
+      owned_account_limit: 'You already manage a company on Cred Chat. Each user can create only one company.'
       invalid_params: 'Invalid, please check the signup paramters and try again'
       failed: Signup failed
     voice:
@@ -1117,6 +1118,15 @@ en:
     greeting: 'Hi %{name},'
     button_fallback: 'If the button does not work, open'
     secure_link: 'this secure link'
+    welcome:
+      subject: 'Your %{brand_name} account is ready'
+      eyebrow: 'Account activated'
+      heading: 'Welcome to %{brand_name}!'
+      intro: 'Your email is confirmed and your %{brand_name} account is active.'
+      supporting: 'Open the dashboard to connect your WhatsApp number, invite your team and start talking to your customers.'
+      action: 'Open the dashboard'
+      company_label: 'Company'
+      email_label: 'Email'
     reset_password:
       eyebrow: 'Password reset'
       heading: 'Reset your password'
