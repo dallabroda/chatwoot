@@ -47,6 +47,27 @@ RSpec.describe 'Webhooks::WhatsappController', type: :request do
           params: { 'hub.challenge' => '123456', 'hub.mode' => 'subscribe', 'hub.verify_token' => channel.provider_config['webhook_verify_token'] }
       expect(response.body).to include '123456'
     end
+
+    context 'with the app-level verify token' do
+      before do
+        InstallationConfig.where(name: 'WHATSAPP_WEBHOOK_VERIFY_TOKEN').delete_all
+        GlobalConfig.clear_cache
+      end
+
+      it 'returns challenge for a path without inbox' do
+        with_modified_env WHATSAPP_WEBHOOK_VERIFY_TOKEN: 'app-token' do
+          get '/webhooks/whatsapp/app', params: { 'hub.challenge' => '123456', 'hub.mode' => 'subscribe', 'hub.verify_token' => 'app-token' }
+        end
+        expect(response.body).to include '123456'
+      end
+
+      it 'returns 401 for a wrong token on a path without inbox' do
+        with_modified_env WHATSAPP_WEBHOOK_VERIFY_TOKEN: 'app-token' do
+          get '/webhooks/whatsapp/app', params: { 'hub.challenge' => '123456', 'hub.mode' => 'subscribe', 'hub.verify_token' => 'other' }
+        end
+        expect(response).to have_http_status(:unauthorized)
+      end
+    end
   end
 
   describe 'POST /webhooks/whatsapp/{:phone_number}' do

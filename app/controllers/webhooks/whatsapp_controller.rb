@@ -28,7 +28,16 @@ class Webhooks::WhatsappController < ActionController::API
   def valid_token?(token)
     channel = Channel::Whatsapp.find_by(phone_number: params[:phone_number])
     whatsapp_webhook_verify_token = channel.provider_config['webhook_verify_token'] if channel.present?
-    token == whatsapp_webhook_verify_token if whatsapp_webhook_verify_token.present?
+    return true if whatsapp_webhook_verify_token.present? && token == whatsapp_webhook_verify_token
+
+    app_webhook_verify_token?(token)
+  end
+
+  # App-level Meta webhook (e.g. /webhooks/whatsapp/app): verified with an installation-wide token so it
+  # does not depend on any inbox. Payloads are routed by phone_number_id, not by the URL.
+  def app_webhook_verify_token?(token)
+    app_token = GlobalConfigService.load('WHATSAPP_WEBHOOK_VERIFY_TOKEN', nil)
+    app_token.present? && token.present? && ActiveSupport::SecurityUtils.secure_compare(token, app_token)
   end
 
   def meta_app_secrets
