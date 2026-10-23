@@ -4,9 +4,11 @@ on:
   push:
     branches:
       - develop
+      - credtech
   pull_request:
     branches:
       - develop
+      - credtech
 
 permissions:
   contents: read
