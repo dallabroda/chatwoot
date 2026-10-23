@@ -51,13 +51,11 @@ RSpec.describe '/api/v1/accounts/{account.id}/contacts/:id/conversations', type:
       end
 
       context 'with user as unknown role' do
-        it 'returns conversations from no inboxes' do
+        # Contacts are only visible through the user's inboxes (Contact.visible_to)
+        it 'returns not found' do
           get "/api/v1/accounts/#{account.id}/contacts/#{contact.id}/conversations", headers: unknown.create_new_auth_token
 
-          expect(response).to have_http_status(:success)
-          json_response = response.parsed_body
-
-          expect(json_response['payload'].length).to eq 0
+          expect(response).to have_http_status(:not_found)
         end
       end
 

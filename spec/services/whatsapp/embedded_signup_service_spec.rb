@@ -38,7 +38,7 @@ describe Whatsapp::EmbeddedSignupService do
 
       channel_creation = instance_double(Whatsapp::ChannelCreationService)
       allow(Whatsapp::ChannelCreationService).to receive(:new)
-        .with(account, { waba_id: params[:waba_id], business_name: 'Test Business' }, phone_info, access_token)
+        .with(account, { waba_id: params[:waba_id], business_name: 'Test Business', shared_assets: nil }, phone_info, access_token)
         .and_return(channel_creation)
       allow(channel_creation).to receive(:perform).and_return(channel)
 
@@ -163,7 +163,8 @@ describe Whatsapp::EmbeddedSignupService do
           account: account,
           inbox_id: inbox_id,
           phone_number_id: params[:phone_number_id],
-          waba_id: params[:waba_id]
+          waba_id: params[:waba_id],
+          shared_assets: nil
         ).and_return(reauth_service)
         allow(reauth_service).to receive(:perform).with(access_token, phone_info).and_return(channel)
 
@@ -217,7 +218,8 @@ describe Whatsapp::EmbeddedSignupService do
             account: account,
             inbox_id: inbox.id,
             phone_number_id: params[:phone_number_id],
-            waba_id: params[:waba_id]
+            waba_id: params[:waba_id],
+            shared_assets: nil
           ).and_return(reauth_service)
 
           allow(reauth_service).to receive(:perform) do

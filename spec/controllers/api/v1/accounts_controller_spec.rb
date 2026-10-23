@@ -404,6 +404,7 @@ RSpec.describe 'Accounts API', type: :request do
       it 'returns forbidden for API token authentication' do
         account_scope = double
         allow(account_scope).to receive(:find).with(account.id.to_s).and_return(account)
+        allow(account_scope).to receive(:first).and_return(account) # welcome email on first confirmation
         allow_any_instance_of(User).to receive(:accounts).and_return(account_scope) # rubocop:disable RSpec/AnyInstance
         allow(account).to receive(:api_and_webhooks_enabled?).and_return(false)
 
@@ -446,6 +447,7 @@ RSpec.describe 'Accounts API', type: :request do
       it 'returns forbidden for API token authentication' do
         account_scope = double
         allow(account_scope).to receive(:find).with(account.id.to_s).and_return(account)
+        allow(account_scope).to receive(:first).and_return(account) # welcome email on first confirmation
         allow_any_instance_of(User).to receive(:accounts).and_return(account_scope) # rubocop:disable RSpec/AnyInstance
         allow(account).to receive(:api_and_webhooks_enabled?).and_return(false)
 
@@ -629,6 +631,7 @@ RSpec.describe 'Accounts API', type: :request do
       it 'returns forbidden without modifying the account for API token authentication' do
         account_scope = double
         allow(account_scope).to receive(:find).with(account.id.to_s).and_return(account)
+        allow(account_scope).to receive(:first).and_return(account) # welcome email on first confirmation
         allow_any_instance_of(User).to receive(:accounts).and_return(account_scope) # rubocop:disable RSpec/AnyInstance
         allow(account).to receive(:api_and_webhooks_enabled?).and_return(false)
 
@@ -672,6 +675,7 @@ RSpec.describe 'Accounts API', type: :request do
       it 'returns forbidden without updating active_at for API token authentication' do
         account_scope = double
         allow(account_scope).to receive(:find).with(account.id.to_s).and_return(account)
+        allow(account_scope).to receive(:first).and_return(account) # welcome email on first confirmation
         allow_any_instance_of(User).to receive(:accounts).and_return(account_scope) # rubocop:disable RSpec/AnyInstance
         allow(account).to receive(:api_and_webhooks_enabled?).and_return(false)
         account_user = agent.account_users.first
