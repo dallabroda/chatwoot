@@ -3,6 +3,8 @@ import { ref, computed, onBeforeMount } from 'vue';
 import { useStore } from 'vuex';
 import SignupForm from './components/Signup/Form.vue';
 import Testimonials from './components/Testimonials/Index.vue';
+import Auth0LoginButton from '../../../components/Auth0Login/Button.vue';
+import SimpleDivider from '../../../components/Divider/SimpleDivider.vue';
 import Spinner from 'shared/components/Spinner.vue';
 import { useBranding } from 'shared/composables/useBranding';
 import signupBg from 'assets/images/auth/signup-bg.jpg';
@@ -23,6 +25,11 @@ const isAChatwootInstance = computed(
   () => globalConfig.value.installationName === 'Chatwoot'
 );
 const isShopifySignup = computed(() => Boolean(props.shopifyPendingInstall));
+const showAuth0Signup = computed(() =>
+  Boolean(
+    window.chatwootConfig.auth0Domain && window.chatwootConfig.auth0ClientId
+  )
+);
 const loginRoute = computed(() => {
   const route = { name: 'login' };
   if (!isShopifySignup.value) return route;
@@ -89,6 +96,10 @@ const resizeContainers = () => {
               </router-link>
             </p>
           </div>
+          <template v-if="showAuth0Signup && !isShopifySignup">
+            <Auth0LoginButton />
+            <SimpleDivider :label="$t('COMMON.OR')" class="uppercase my-6" />
+          </template>
           <SignupForm :shopify-pending-install="shopifyPendingInstall" />
         </div>
       </div>
