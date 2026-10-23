@@ -124,6 +124,32 @@ RSpec.describe Contact do
     end
   end
 
+  describe '.visible_to' do
+    let(:account) { create(:account) }
+    let(:agent) { create(:user, account: account, role: :agent) }
+    let(:admin) { create(:user, account: account, role: :administrator) }
+    let(:agent_inbox) { create(:inbox, account: account) }
+    let(:other_inbox) { create(:inbox, account: account) }
+    let!(:contact_in_agent_inbox) { create(:contact, account: account) }
+    let!(:contact_in_other_inbox) { create(:contact, account: account) }
+    let!(:contact_without_inbox) { create(:contact, account: account) }
+
+    before do
+      create(:inbox_member, user: agent, inbox: agent_inbox)
+      create(:contact_inbox, contact: contact_in_agent_inbox, inbox: agent_inbox)
+      create(:contact_inbox, contact: contact_in_other_inbox, inbox: other_inbox)
+    end
+
+    it 'shows agents contacts from their inboxes and contacts without any conversation yet' do
+      expect(account.contacts.visible_to(agent, account)).to contain_exactly(contact_in_agent_inbox, contact_without_inbox)
+    end
+
+    it 'shows administrators every contact' do
+      expect(account.contacts.visible_to(admin, account))
+        .to contain_exactly(contact_in_agent_inbox, contact_in_other_inbox, contact_without_inbox)
+    end
+  end
+
   describe '.resolved_contacts' do
     let(:account) { create(:account) }
 

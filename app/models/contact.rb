@@ -184,7 +184,9 @@ class Contact < ApplicationRecord
     return all if account.account_users.find_by(user: user)&.administrator?
 
     member_inbox_ids = account.inboxes.joins(:inbox_members).where(inbox_members: { user_id: user.id }).select(:id)
+    # Contacts with no conversation yet (created by hand or imported) belong to no inbox, so the whole team sees them
     where(id: ContactInbox.where(inbox_id: member_inbox_ids).select(:contact_id))
+      .or(where('NOT EXISTS (SELECT 1 FROM contact_inboxes WHERE contact_inboxes.contact_id = contacts.id)'))
   end
 
   def discard_invalid_attrs
