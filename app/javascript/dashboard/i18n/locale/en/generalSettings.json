@@ -168,6 +168,7 @@
     "LIMITS_UPGRADE": "Your account has exceeded the usage limits, please upgrade your plan to continue using Chatwoot",
     "OPEN_BILLING": "Open billing",
     "WHATSAPP_PLAN_BANNER": {
+      "COURTESY": "CredTech courtesy: you can connect up to {limit} WhatsApp numbers at no cost until {date}.",
       "TRIAL": "Free trial: you can connect up to {limit} WhatsApp numbers until {date}.",
       "PAUSED": "{count} WhatsApp number(s) paused: over your plan limit (trial ended or payment overdue).",
       "OPEN_PLANS": "See plans"

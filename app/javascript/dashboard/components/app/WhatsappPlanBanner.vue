@@ -33,6 +33,10 @@ const pausedCount = computed(
   () => summary.value?.paused_inbox_ids?.length || 0
 );
 const inTrial = computed(() => Boolean(summary.value?.in_trial));
+const inCourtesy = computed(() => Boolean(summary.value?.in_courtesy));
+
+const formatDate = value =>
+  new Date(value).toLocaleDateString(locale.value.replace('_', '-'));
 
 const message = computed(() => {
   if (pausedCount.value) {
@@ -40,12 +44,15 @@ const message = computed(() => {
       count: pausedCount.value,
     });
   }
-  const date = new Date(summary.value.trial_ends_at).toLocaleDateString(
-    locale.value.replace('_', '-')
-  );
+  if (inCourtesy.value) {
+    return t('GENERAL_SETTINGS.WHATSAPP_PLAN_BANNER.COURTESY', {
+      limit: summary.value.effective_waba_limit,
+      date: formatDate(summary.value.courtesy_until),
+    });
+  }
   return t('GENERAL_SETTINGS.WHATSAPP_PLAN_BANNER.TRIAL', {
     limit: summary.value.effective_waba_limit,
-    date,
+    date: formatDate(summary.value.trial_ends_at),
   });
 });
 
@@ -60,7 +67,7 @@ const openBilling = () => {
 <!-- eslint-disable-next-line vue/no-root-v-if -->
 <template>
   <Banner
-    v-if="pausedCount || inTrial"
+    v-if="pausedCount || inCourtesy || inTrial"
     :color="pausedCount ? 'ruby' : 'amber'"
     role="alert"
     class="!rounded-none !justify-center flex-wrap shrink-0"

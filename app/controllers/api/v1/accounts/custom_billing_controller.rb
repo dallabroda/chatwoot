@@ -20,6 +20,9 @@ class Api::V1::Accounts::CustomBillingController < Api::V1::Accounts::BaseContro
       effective_waba_limit: sub.effective_waba_limit,
       in_trial: sub.in_trial?,
       trial_ends_at: sub.trial_ends_at,
+      in_courtesy: sub.courtesy_active?,
+      courtesy_waba_count: sub.courtesy_waba_count,
+      courtesy_until: sub.courtesy_until,
       paused_inbox_ids: Current.account.paused_whatsapp_inbox_ids
     }
   end

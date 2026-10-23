@@ -24,10 +24,16 @@ class AccountSubscription < ApplicationRecord
   # Numbers usable right now: what was paid for, or the trial allowance while the trial runs.
   # An overdue subscription falls back to the free number until the payment goes through.
   def effective_waba_limit
-    return allowed_waba_count if paid?
+    courtesy_active? ? [plan_waba_limit, courtesy_waba_count].max : plan_waba_limit
+  end
 
-    base_limit = past_due? ? 1 : allowed_waba_count
-    in_trial? ? [base_limit, TRIAL_WABA_LIMIT].max : base_limit
+  # A courtesy grant adds numbers until courtesy_until; afterwards the normal plan rules apply again.
+  def courtesy_active?
+    courtesy_waba_count.to_i.positive? && courtesy_until.present? && Time.current < courtesy_until
+  end
+
+  def grant_courtesy!(waba_count:, days:)
+    update!(courtesy_waba_count: waba_count, courtesy_until: days.days.from_now)
   end
 
   def paid?
@@ -61,5 +67,14 @@ class AccountSubscription < ApplicationRecord
 
   def past_due?
     status == 'past_due'
+  end
+
+  private
+
+  def plan_waba_limit
+    return allowed_waba_count if paid?
+
+    base_limit = past_due? ? 1 : allowed_waba_count
+    in_trial? ? [base_limit, TRIAL_WABA_LIMIT].max : base_limit
   end
 end

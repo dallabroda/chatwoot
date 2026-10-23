@@ -168,6 +168,7 @@
     "LIMITS_UPGRADE": "Sua conta excedeu os limites de uso. Por favor, faça um upgrade do seu plano para continuar usando o Chatwoot",
     "OPEN_BILLING": "Abrir faturamento",
     "WHATSAPP_PLAN_BANNER": {
+      "COURTESY": "Cortesia CredTech: você pode conectar até {limit} números de WhatsApp sem custo até {date}.",
       "TRIAL": "Período de teste: você pode conectar até {limit} números de WhatsApp até {date}.",
       "PAUSED": "{count} número(s) de WhatsApp pausado(s): passou do limite do plano (teste encerrado ou pagamento pendente).",
       "OPEN_PLANS": "Ver planos"
