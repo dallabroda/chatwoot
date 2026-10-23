@@ -76,6 +76,9 @@ RUN pnpm i
 
 COPY . /app
 
+# Cred Chat ships only the MIT-licensed core (same as upstream's publish_foss_docker workflow)
+RUN rm -rf /app/enterprise /app/spec/enterprise
+
 # creating a log directory so that image wont fail when RAILS_LOG_TO_STDOUT is false
 # https://github.com/chatwoot/chatwoot/issues/701
 RUN mkdir -p /app/log
@@ -153,3 +156,5 @@ COPY --from=pre-builder /app/.git_sha /app/.git_sha
 WORKDIR /app
 
 EXPOSE 3000
+
+ENV CW_EDITION="ce"
